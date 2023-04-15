@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:number_text_input_formatter/number_text_input_formatter.dart';
+import 'mealrecord.dart';
+import 'weightrecord.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(const MyApp());
 
@@ -34,7 +40,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     'record meal',
     'record exercise'
   ];
-  final List<int> colorCodes1 = <int>[600, 500, 100];
   String _operation = 'record weight';
   void updateText(String text) {
     setState(() {
@@ -50,7 +55,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         return GestureDetector(
             child: Container(
               alignment: Alignment.center,
-              color: Colors.blue,
+              color: Colors.red[300],
               width: 200.0,
               height: 100.0,
               child: Text(
@@ -65,8 +70,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        var dateController = TextEditingController();
-                        var weightController = TextEditingController();
+                        var dateController = TextEditingController(
+                            text: DateFormat('yyyy-MM-dd')
+                                .format(DateTime.now()));
+                        var weightController =
+                            TextEditingController(text: "60");
                         return AlertDialog(
                           scrollable: true,
                           title: const Text('Record Weight'),
@@ -108,6 +116,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                     },
                                   ),
                                   TextFormField(
+                                    inputFormatters: [
+                                      NumberTextInputFormatter(
+                                        integerDigits: 4,
+                                        decimalDigits: 2,
+                                        maxValue: '1000.00',
+                                        decimalSeparator: '.',
+                                        groupDigits: 3,
+                                        groupSeparator: ',',
+                                        allowNegative: false,
+                                        overrideDecimalPoint: true,
+                                        insertDecimalPoint: false,
+                                        insertDecimalDigits: true,
+                                      ),
+                                    ],
+                                    keyboardType: TextInputType.number,
                                     controller: weightController,
                                     textAlign: TextAlign.center,
                                     autovalidateMode: AutovalidateMode.always,
@@ -128,9 +151,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               child: const Text('Cancel'),
                             ),
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 var date = dateController.text;
                                 var weight = weightController.text;
+                                var record = WeightRecord(date, weight);
+                                final String body = jsonEncode(record);
+                                final url = Uri.http('127.0.0.1');
+                                await http.post(url,
+                                    headers: {
+                                      'Content-Type': 'application/json'
+                                    },
+                                    body: body);
+
+                                // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                               },
                               child: const Text('Submit'),
@@ -143,9 +176,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        var dateController = TextEditingController();
-                        var timeController = TextEditingController();
-                        var mealController = TextEditingController();
+                        var dateController = TextEditingController(
+                            text: DateFormat('yyyy-MM-dd')
+                                .format(DateTime.now()));
+                        var timeController =
+                            TextEditingController(text: "00:00");
                         return AlertDialog(
                           scrollable: true,
                           title: const Text('Record Meal Time'),
@@ -266,10 +301,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               child: const Text('Cancel'),
                             ),
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 var date = dateController.text;
                                 var time = timeController.text;
-                                var meal = mealController.text;
+                                var record =
+                                    MealRecord(date, time, selectedValue);
+                                final String body = jsonEncode(record);
+                                final url = Uri.http('127.0.0.1');
+                                await http.post(url,
+                                    headers: {
+                                      'Content-Type': 'application/json'
+                                    },
+                                    body: body);
+                                // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                               },
                               child: const Text('Send'),
@@ -292,16 +336,16 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     'meal records',
     'exercise records'
   ];
-  final List<int> colorCodes2 = <int>[600, 500, 100];
-
   Widget _past() {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemCount: entries2.length,
       itemBuilder: (BuildContext context, int index) {
         return Container(
-          height: 50,
-          color: Colors.amber[colorCodes2[index]],
+          alignment: Alignment.center,
+          width: 200.0,
+          height: 100.0,
+          color: Colors.amber[300],
           child: Center(child: Text(' ${entries2[index]}')),
         );
       },
@@ -316,7 +360,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
 
   final List<String> entries3 = <String>['profile', 'settings'];
-  final List<int> colorCodes3 = <int>[600, 500];
 
   Widget _profile() {
     return ListView.separated(
@@ -324,8 +367,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       itemCount: entries3.length,
       itemBuilder: (BuildContext context, int index) {
         return Container(
-          height: 50,
-          color: Colors.amber[colorCodes3[index]],
+          alignment: Alignment.center,
+          width: 200.0,
+          height: 100.0,
+          color: Colors.blue[300],
           child: Center(child: Text(' ${entries3[index]}')),
         );
       },
@@ -343,6 +388,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('RecFit System'),
+        backgroundColor: Colors.black,
       ),
       body: children[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
