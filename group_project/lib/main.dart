@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(const MyApp());
+
+const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -24,6 +27,7 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  String selectedValue = meals.first;
   int _selectedIndex = 0;
   final List<String> entries1 = <String>[
     'record weight',
@@ -65,7 +69,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         var weightController = TextEditingController();
                         return AlertDialog(
                           scrollable: true,
-                          title: const Text('Login'),
+                          title: const Text('Record Weight'),
                           content: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Form(
@@ -75,14 +79,43 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                     controller: dateController,
                                     decoration: const InputDecoration(
                                       labelText: 'Date',
-                                      icon: Icon(Icons.account_box),
+                                      icon: Icon(Icons.today),
                                     ),
+                                    readOnly: true,
+                                    onTap: () async {
+                                      DateTime? pickedDate =
+                                          await showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now(),
+                                              firstDate: DateTime(2000),
+                                              lastDate: DateTime(2101));
+
+                                      if (pickedDate != null) {
+                                        String formattedDate =
+                                            DateFormat('yyyy-MM-dd')
+                                                .format(pickedDate);
+                                        setState(() {
+                                          dateController.text = formattedDate;
+                                        });
+                                      } else {
+                                        String formattedDate =
+                                            DateFormat('yyyy-MM-dd')
+                                                .format(DateTime.now());
+                                        setState(() {
+                                          dateController.text = formattedDate;
+                                        });
+                                      }
+                                    },
                                   ),
                                   TextFormField(
                                     controller: weightController,
+                                    textAlign: TextAlign.center,
+                                    autovalidateMode: AutovalidateMode.always,
                                     decoration: const InputDecoration(
+                                      icon: Icon(Icons.monitor_weight),
                                       labelText: 'Weight',
-                                      icon: Icon(Icons.email),
+                                      hintText: '0.0',
+                                      suffixText: 'Kg',
                                     ),
                                   ),
                                 ],
@@ -96,12 +129,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             ),
                             TextButton(
                               onPressed: () {
-                                // Send them to your email maybe?
                                 var date = dateController.text;
                                 var weight = weightController.text;
                                 Navigator.pop(context);
                               },
-                              child: const Text('Send'),
+                              child: const Text('Submit'),
                             ),
                           ],
                         );
@@ -116,7 +148,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                         var mealController = TextEditingController();
                         return AlertDialog(
                           scrollable: true,
-                          title: const Text('Login'),
+                          title: const Text('Record Meal Time'),
                           content: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Form(
@@ -126,23 +158,104 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                     controller: dateController,
                                     decoration: const InputDecoration(
                                       labelText: 'Date',
-                                      icon: Icon(Icons.account_box),
+                                      icon: Icon(Icons.today),
                                     ),
+                                    readOnly: true,
+                                    onTap: () async {
+                                      DateTime? pickedDate =
+                                          await showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now(),
+                                              firstDate: DateTime(2000),
+                                              lastDate: DateTime(2101));
+
+                                      if (pickedDate != null) {
+                                        String formattedDate =
+                                            DateFormat('yyyy-MM-dd')
+                                                .format(pickedDate);
+                                        setState(() {
+                                          dateController.text = formattedDate;
+                                        });
+                                      } else {
+                                        String formattedDate =
+                                            DateFormat('yyyy-MM-dd')
+                                                .format(DateTime.now());
+                                        setState(() {
+                                          dateController.text = formattedDate;
+                                        });
+                                      }
+                                    },
                                   ),
                                   TextFormField(
                                     controller: timeController,
                                     decoration: const InputDecoration(
                                       labelText: 'Time',
-                                      icon: Icon(Icons.email),
+                                      icon: Icon(Icons.schedule),
                                     ),
+                                    readOnly: true,
+                                    onTap: () async {
+                                      TimeOfDay? pickedTime =
+                                          await showTimePicker(
+                                        initialTime: TimeOfDay.now(),
+                                        context: context,
+                                      );
+
+                                      if (pickedTime != null) {
+                                        DateTime parsedTime = DateFormat.jm()
+                                            // ignore: use_build_context_synchronously
+                                            .parse(pickedTime
+                                                .format(context)
+                                                .toString());
+                                        String formattedTime =
+                                            DateFormat('HH:mm')
+                                                .format(parsedTime);
+                                        setState(() {
+                                          timeController.text = formattedTime;
+                                        });
+                                      } else {
+                                        DateTime parsedTime = DateFormat.jm()
+                                            // ignore: use_build_context_synchronously
+                                            .parse(TimeOfDay.now()
+                                                .format(context)
+                                                .toString());
+                                        String formattedTime =
+                                            DateFormat('HH:mm')
+                                                .format(parsedTime);
+                                        setState(() {
+                                          timeController.text = formattedTime;
+                                        });
+                                      }
+                                    },
                                   ),
-                                  TextFormField(
-                                    controller: mealController,
+                                  DropdownButtonFormField(
                                     decoration: const InputDecoration(
-                                      labelText: 'Meal',
-                                      icon: Icon(Icons.email),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.black, width: 2),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.black, width: 2),
+                                      ),
+                                      filled: true,
                                     ),
-                                  ),
+                                    value: selectedValue,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedValue = newValue!;
+                                      });
+                                    },
+                                    items: meals.map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  )
                                 ],
                               ),
                             ),
@@ -154,7 +267,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             ),
                             TextButton(
                               onPressed: () {
-                                // Send them to your email maybe?
                                 var date = dateController.text;
                                 var time = timeController.text;
                                 var meal = mealController.text;
