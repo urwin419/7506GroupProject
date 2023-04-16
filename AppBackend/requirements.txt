@@ -1,0 +1,4 @@
+PyMySQL~=1.0.3
+DBUtils~=3.0.2
+Flask~=2.0.2
+pagan~=0.4.3
