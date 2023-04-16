@@ -122,3 +122,17 @@ class DB:
         self.execute('UPDATE user SET avatar=%s WHERE userid=%s', data)
         self.commit()
         self.close()
+
+    # upload weight record
+    def upload_wei_rec(self, data):
+        self.create_conn()
+        self.execute('INSERT INTO weight(id, date, weight) values(%s, %s, %s)', data)
+        self.commit()
+        self.close()
+
+    # upload weight record
+    def upload_meal_rec(self, data):
+        self.create_conn()
+        self.execute('INSERT INTO meal(id, date, time, meal) values(%s, %s, %s, %s)', data)
+        self.commit()
+        self.close()

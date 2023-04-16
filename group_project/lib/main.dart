@@ -6,10 +6,12 @@ import 'package:number_text_input_formatter/number_text_input_formatter.dart';
 import 'mealrecord.dart';
 import 'weightrecord.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void main() => runApp(const MyApp());
 
 const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
+var id = "0";
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -154,17 +156,48 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               onPressed: () async {
                                 var date = dateController.text;
                                 var weight = weightController.text;
-                                var record = WeightRecord(date, weight);
+                                var record = WeightRecord(id, date, weight);
                                 final String body = jsonEncode(record);
-                                final url = Uri.http('127.0.0.1');
-                                await http.post(url,
-                                    headers: {
-                                      'Content-Type': 'application/json'
-                                    },
-                                    body: body);
-
-                                // ignore: use_build_context_synchronously
-                                Navigator.pop(context);
+                                final url =
+                                    Uri.parse('http://10.0.2.2:5000/rec_wei');
+                                final response =
+                                    await http.post(url, body: body);
+                                if (response.statusCode == 201) {
+                                  // ignore: use_build_context_synchronously
+                                  return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      content: const Text('UPLOAD SUCCEED'),
+                                      actions: <TextButton>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Close'),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      content:
+                                          Text(response.statusCode.toString()),
+                                      actions: <TextButton>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Close'),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }
                               },
                               child: const Text('Submit'),
                             ),
@@ -305,12 +338,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                 var date = dateController.text;
                                 var time = timeController.text;
                                 var record =
-                                    MealRecord(date, time, selectedValue);
+                                    MealRecord(id, date, time, selectedValue);
                                 final String body = jsonEncode(record);
-                                final url = Uri.http('127.0.0.1');
-                                await http.post(url,
+                                final url = Uri.http('http://127.0.0.1:5000');
+                                final response = await http.post(url,
                                     headers: {
-                                      'Content-Type': 'application/json'
+                                      'Content-Type': 'application/rec_meal'
                                     },
                                     body: body);
                                 // ignore: use_build_context_synchronously

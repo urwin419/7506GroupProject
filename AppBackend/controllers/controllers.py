@@ -154,3 +154,27 @@ class Controller(object):
         db = self.conn
         db.upload_avatar([avatar, db.get_userid(session.get('username'))['userid']])
         return {'status': 1}
+    
+    def rec_wei_func(self, request):
+        id = request.form['id']
+        date = request.form['date']
+        weight = request.form['weight']
+        if weight == '' or id == '' or date == '':
+            return {'status': 2}
+        else:
+            db = self.conn
+            db.upload_wei_rec([id,date,weight])
+            return {'status': 1}
+        
+    def rec_meal_func(self, request):
+        id = request.form['id']
+        date = request.form['date']
+        time = request.form['time']
+        meal = request.form['meal']
+        if id == '' or date == '' or time == '' or meal == '':
+            return {'status': 2}
+        else:
+            db = self.conn
+            db.upload_meal_rec([id,date,time,meal])
+            return {'status': 1}
+    
