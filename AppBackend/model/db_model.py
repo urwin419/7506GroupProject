@@ -2,6 +2,7 @@ import os
 
 import pymysql as mdb
 from dbutils.pooled_db import PooledDB
+from datetime import datetime
 
 path = os.getcwd()
 f = open('config', 'r')
@@ -126,13 +127,21 @@ class DB:
     # upload weight record
     def upload_wei_rec(self, data):
         self.create_conn()
-        self.execute('INSERT INTO weight(id, date, weight) values(%s, %s, %s)', data)
+        id = int(data[0])
+        #date = datetime.strptime(data[1], '%y/%m/%d')
+        date = data[1]
+        weight = float(data[2])
+        self.execute('INSERT INTO weight(id, date, weight) values(%(id)d, %(date)s, %(weight)d)', [id,date,weight])
         self.commit()
         self.close()
 
     # upload weight record
     def upload_meal_rec(self, data):
         self.create_conn()
-        self.execute('INSERT INTO meal(id, date, time, meal) values(%s, %s, %s, %s)', data)
+        id = int(data[0])
+        date = datetime.strptime(data[1], '%y/%m/%d')
+        time = datetime.strptime(data[2], '%H/%M/%S')
+        meal = data[3]
+        self.execute('INSERT INTO meal(id, date, time, meal) values(%s, %s, %s, %s)', [id,date,time,meal])
         self.commit()
         self.close()

@@ -6,12 +6,11 @@ import 'package:number_text_input_formatter/number_text_input_formatter.dart';
 import 'mealrecord.dart';
 import 'weightrecord.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void main() => runApp(const MyApp());
 
 const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
-var id = "0";
+var id = '1';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -76,7 +75,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                             text: DateFormat('yyyy-MM-dd')
                                 .format(DateTime.now()));
                         var weightController =
-                            TextEditingController(text: "60");
+                            TextEditingController(text: '60.00');
                         return AlertDialog(
                           scrollable: true,
                           title: const Text('Record Weight'),
@@ -185,8 +184,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                     context: context,
                                     builder: (BuildContext context) =>
                                         AlertDialog(
-                                      content:
-                                          Text(response.statusCode.toString()),
+                                      content: Text(
+                                          response.statusCode.toString() +
+                                              body),
                                       actions: <TextButton>[
                                         TextButton(
                                           onPressed: () {
@@ -340,14 +340,48 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                 var record =
                                     MealRecord(id, date, time, selectedValue);
                                 final String body = jsonEncode(record);
-                                final url = Uri.http('http://127.0.0.1:5000');
-                                final response = await http.post(url,
-                                    headers: {
-                                      'Content-Type': 'application/rec_meal'
-                                    },
-                                    body: body);
+                                final url =
+                                    Uri.parse('http://10.0.2.2:8080/rec_meal');
+                                final response =
+                                    await http.post(url, body: body);
+                                if (response.statusCode == 201) {
+                                  // ignore: use_build_context_synchronously
+                                  return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      content: const Text('UPLOAD SUCCEED'),
+                                      actions: <TextButton>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Close'),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      content: Text(
+                                          response.statusCode.toString() +
+                                              body),
+                                      actions: <TextButton>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Close'),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }
                                 // ignore: use_build_context_synchronously
-                                Navigator.pop(context);
                               },
                               child: const Text('Send'),
                             ),
