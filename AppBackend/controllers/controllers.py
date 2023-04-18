@@ -154,7 +154,7 @@ class Controller(object):
         db = self.conn
         db.upload_avatar([avatar, db.get_userid(session.get('username'))['userid']])
         return {'status': 1}
-    
+
     def rec_wei_func(self, request):
         id = request.form['id']
         date = request.form['date']
@@ -163,9 +163,9 @@ class Controller(object):
             return {'status': 2}
         else:
             db = self.conn
-            db.upload_wei_rec([id,date,weight])
+            db.upload_wei_rec([id, date, weight])
             return {'status': 1}
-        
+
     def rec_meal_func(self, request):
         id = request.form['id']
         date = request.form['date']
@@ -175,6 +175,33 @@ class Controller(object):
             return {'status': 2}
         else:
             db = self.conn
-            db.upload_meal_rec([id,date,time,meal])
+            db.upload_meal_rec([id, date, time, meal])
             return {'status': 1}
     
+    def rec_exe_func(self, request):
+        id = request.form['id']
+        date = request.form['date']
+        time = request.form['time']
+        type = request.form['type']
+        content = request.form['content']
+        if id == '' or date == '' or time == '' or type == '':
+            return {'status': 2}
+        else:
+            db = self.conn
+            db.upload_exe_rec([id, date, time, type, content])
+            return {'status': 1}
+        
+    def get_exe_func(self, request):
+        id = request.form['id']
+        db = self.conn
+        return db.get_exe_rec([id])
+    
+    def get_wei_func(self, request):
+        id = request.form['id']
+        db = self.conn
+        return db.get_wei_rec([id])
+    
+    def get_meal_func(self, request):
+        id = request.form['id']
+        db = self.conn
+        return db.get_meal_rec([id])

@@ -1,16 +1,55 @@
+// ignore_for_file: unused_import
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:group_project/exerecord.dart';
 import 'package:intl/intl.dart';
 import 'package:number_text_input_formatter/number_text_input_formatter.dart';
 import 'mealrecord.dart';
 import 'weightrecord.dart';
 import 'package:http/http.dart' as http;
+import 'package:group_project/dialogs.dart';
+import 'recview.dart';
 
 void main() => runApp(const MyApp());
 
 const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
+const List<String> exes = <String>["Jogging", "Crunches", "Push-ups"];
 var id = '1';
+
+Future<List<ExeRecord>> fetchExe() async {
+  var url = Uri.parse('http://10.0.2.2:5000//get_exe');
+  final response = await http.post(url, body: {"id": id});
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((data) => ExeRecord.fromJson(data)).toList();
+  } else {
+    throw Exception('Unexpected error occured!');
+  }
+}
+
+Future<List<MealRecord>> fetchMeal() async {
+  var url = Uri.parse('http://10.0.2.2:5000//get_meal');
+  final response = await http.post(url, body: {"id": id});
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((data) => MealRecord.fromJson(data)).toList();
+  } else {
+    throw Exception('Unexpected error occured!');
+  }
+}
+
+Future<List<WeightRecord>> fetchWeight() async {
+  var url = Uri.parse('http://10.0.2.2:5000//get_wei');
+  final response = await http.post(url, body: {"id": id});
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((data) => WeightRecord.fromJson(data)).toList();
+  } else {
+    throw Exception('Unexpected error occured!');
+  }
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -34,17 +73,32 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  String selectedValue = meals.first;
+  String selectedMeal = meals.first;
+  String selectedexe = exes.first;
   int _selectedIndex = 0;
+  String _operation = 'record weight';
+
   final List<String> entries1 = <String>[
     'record weight',
     'record meal',
     'record exercise'
   ];
-  String _operation = 'record weight';
+  final List<String> entries2 = <String>[
+    'weight records',
+    'meal records',
+    'exercise records'
+  ];
+  final List<String> entries3 = <String>['profile', 'settings'];
+
   void updateText(String text) {
     setState(() {
       _operation = text;
+    });
+  }
+
+  void onTabTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
     });
   }
 
@@ -68,328 +122,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               updateText(entries1[index]);
               switch (_operation) {
                 case 'record weight':
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        var dateController = TextEditingController(
-                            text: DateFormat('yyyy-MM-dd')
-                                .format(DateTime.now()));
-                        var weightController =
-                            TextEditingController(text: '60.00');
-                        return AlertDialog(
-                          scrollable: true,
-                          title: const Text('Record Weight'),
-                          content: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Form(
-                              child: Column(
-                                children: <Widget>[
-                                  TextFormField(
-                                    controller: dateController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Date',
-                                      icon: Icon(Icons.today),
-                                    ),
-                                    readOnly: true,
-                                    onTap: () async {
-                                      DateTime? pickedDate =
-                                          await showDatePicker(
-                                              context: context,
-                                              initialDate: DateTime.now(),
-                                              firstDate: DateTime(2000),
-                                              lastDate: DateTime(2101));
-
-                                      if (pickedDate != null) {
-                                        String formattedDate =
-                                            DateFormat('yyyy-MM-dd')
-                                                .format(pickedDate);
-                                        setState(() {
-                                          dateController.text = formattedDate;
-                                        });
-                                      } else {
-                                        String formattedDate =
-                                            DateFormat('yyyy-MM-dd')
-                                                .format(DateTime.now());
-                                        setState(() {
-                                          dateController.text = formattedDate;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                  TextFormField(
-                                    inputFormatters: [
-                                      NumberTextInputFormatter(
-                                        integerDigits: 4,
-                                        decimalDigits: 2,
-                                        maxValue: '1000.00',
-                                        decimalSeparator: '.',
-                                        groupDigits: 3,
-                                        groupSeparator: ',',
-                                        allowNegative: false,
-                                        overrideDecimalPoint: true,
-                                        insertDecimalPoint: false,
-                                        insertDecimalDigits: true,
-                                      ),
-                                    ],
-                                    keyboardType: TextInputType.number,
-                                    controller: weightController,
-                                    textAlign: TextAlign.center,
-                                    autovalidateMode: AutovalidateMode.always,
-                                    decoration: const InputDecoration(
-                                      icon: Icon(Icons.monitor_weight),
-                                      labelText: 'Weight',
-                                      hintText: '0.0',
-                                      suffixText: 'Kg',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                var date = dateController.text;
-                                var weight = weightController.text;
-                                var record = WeightRecord(id, date, weight);
-                                final String body = jsonEncode(record);
-                                final url =
-                                    Uri.parse('http://10.0.2.2:5000/rec_wei');
-                                final response =
-                                    await http.post(url, body: body);
-                                if (response.statusCode == 201) {
-                                  // ignore: use_build_context_synchronously
-                                  return showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      content: const Text('UPLOAD SUCCEED'),
-                                      actions: <TextButton>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Close'),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                } else {
-                                  // ignore: use_build_context_synchronously
-                                  return showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      content: Text(
-                                          response.statusCode.toString() +
-                                              body),
-                                      actions: <TextButton>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Close'),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                }
-                              },
-                              child: const Text('Submit'),
-                            ),
-                          ],
-                        );
-                      });
+                  weidialog(context, id);
                   break;
                 case 'record meal':
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        var dateController = TextEditingController(
-                            text: DateFormat('yyyy-MM-dd')
-                                .format(DateTime.now()));
-                        var timeController =
-                            TextEditingController(text: "00:00");
-                        return AlertDialog(
-                          scrollable: true,
-                          title: const Text('Record Meal Time'),
-                          content: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Form(
-                              child: Column(
-                                children: <Widget>[
-                                  TextFormField(
-                                    controller: dateController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Date',
-                                      icon: Icon(Icons.today),
-                                    ),
-                                    readOnly: true,
-                                    onTap: () async {
-                                      DateTime? pickedDate =
-                                          await showDatePicker(
-                                              context: context,
-                                              initialDate: DateTime.now(),
-                                              firstDate: DateTime(2000),
-                                              lastDate: DateTime(2101));
-
-                                      if (pickedDate != null) {
-                                        String formattedDate =
-                                            DateFormat('yyyy-MM-dd')
-                                                .format(pickedDate);
-                                        setState(() {
-                                          dateController.text = formattedDate;
-                                        });
-                                      } else {
-                                        String formattedDate =
-                                            DateFormat('yyyy-MM-dd')
-                                                .format(DateTime.now());
-                                        setState(() {
-                                          dateController.text = formattedDate;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                  TextFormField(
-                                    controller: timeController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Time',
-                                      icon: Icon(Icons.schedule),
-                                    ),
-                                    readOnly: true,
-                                    onTap: () async {
-                                      TimeOfDay? pickedTime =
-                                          await showTimePicker(
-                                        initialTime: TimeOfDay.now(),
-                                        context: context,
-                                      );
-
-                                      if (pickedTime != null) {
-                                        DateTime parsedTime = DateFormat.jm()
-                                            // ignore: use_build_context_synchronously
-                                            .parse(pickedTime
-                                                .format(context)
-                                                .toString());
-                                        String formattedTime =
-                                            DateFormat('HH:mm')
-                                                .format(parsedTime);
-                                        setState(() {
-                                          timeController.text = formattedTime;
-                                        });
-                                      } else {
-                                        DateTime parsedTime = DateFormat.jm()
-                                            // ignore: use_build_context_synchronously
-                                            .parse(TimeOfDay.now()
-                                                .format(context)
-                                                .toString());
-                                        String formattedTime =
-                                            DateFormat('HH:mm')
-                                                .format(parsedTime);
-                                        setState(() {
-                                          timeController.text = formattedTime;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                  DropdownButtonFormField(
-                                    decoration: const InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 2),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 2),
-                                      ),
-                                      filled: true,
-                                    ),
-                                    value: selectedValue,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectedValue = newValue!;
-                                      });
-                                    },
-                                    items: meals.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: const TextStyle(fontSize: 20),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                var date = dateController.text;
-                                var time = timeController.text;
-                                var record =
-                                    MealRecord(id, date, time, selectedValue);
-                                final String body = jsonEncode(record);
-                                final url =
-                                    Uri.parse('http://10.0.2.2:8080/rec_meal');
-                                final response =
-                                    await http.post(url, body: body);
-                                if (response.statusCode == 201) {
-                                  // ignore: use_build_context_synchronously
-                                  return showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      content: const Text('UPLOAD SUCCEED'),
-                                      actions: <TextButton>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Close'),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                } else {
-                                  // ignore: use_build_context_synchronously
-                                  return showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      content: Text(
-                                          response.statusCode.toString() +
-                                              body),
-                                      actions: <TextButton>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Close'),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                }
-                                // ignore: use_build_context_synchronously
-                              },
-                              child: const Text('Send'),
-                            ),
-                          ],
-                        );
-                      });
+                  mealdialog(context, id, selectedMeal, meals);
                   break;
                 case 'record exercise':
+                  exedialog(context, id, selectedexe, exes);
                   break;
               }
             });
@@ -398,35 +137,46 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     );
   }
 
-  final List<String> entries2 = <String>[
-    'weight records',
-    'meal records',
-    'exercise records'
-  ];
   Widget _past() {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemCount: entries2.length,
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-          alignment: Alignment.center,
-          width: 200.0,
-          height: 100.0,
-          color: Colors.amber[300],
-          child: Center(child: Text(' ${entries2[index]}')),
-        );
+        return GestureDetector(
+            child: Container(
+              alignment: Alignment.center,
+              width: 200.0,
+              height: 100.0,
+              color: Colors.amber[300],
+              child: Center(child: Text(' ${entries2[index]}')),
+            ),
+            onTap: () {
+              updateText(entries2[index]);
+              switch (_operation) {
+                case 'weight records':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const WeiRec()),
+                  );
+                  break;
+                case 'meal records':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MealRec()),
+                  );
+                  break;
+                case 'exercise records':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ExeRec()),
+                  );
+                  break;
+              }
+            });
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
     );
   }
-
-  void onTabTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  final List<String> entries3 = <String>['profile', 'settings'];
 
   Widget _profile() {
     return ListView.separated(

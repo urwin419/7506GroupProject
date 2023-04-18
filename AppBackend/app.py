@@ -67,11 +67,18 @@ def log_out():
     session.pop('username')
     return {'status': 1}
 
+
 # upload weight record
 @app.route('/rec_wei', methods=['POST'])
 def rec_wei():
     controller = Controller(app, DB(), session)
     return controller.rec_wei_func(request)
+
+# get the weight records
+@app.route('/get_wei', methods=['POST'])
+def get_wei():
+    controller = Controller(app, DB(), session)
+    return controller.get_wei_func(request)
 
 # upload meal record
 @app.route('/rec_meal', methods=['POST'])
@@ -79,6 +86,23 @@ def rec_meal():
     controller = Controller(app, DB(), session)
     return controller.rec_meal_func(request)
 
+# get the meal records
+@app.route('/get_meal', methods=['POST'])
+def get_meal():
+    controller = Controller(app, DB(), session)
+    return controller.get_meal_func(request)
+
+# upload exercise record
+@app.route('/rec_exe', methods=['POST'])
+def rec_exe():
+    controller = Controller(app, DB(), session)
+    return controller.rec_exe_func(request)
+
+# get the weight records
+@app.route('/get_exe', methods=['POST'])
+def get_exe():
+    controller = Controller(app, DB(), session)
+    return controller.get_exe_func(request)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80, debug=True)
