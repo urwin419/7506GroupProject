@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ weidialog(context, id) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
+        var dcontext = context;
         var dateController = TextEditingController(
             text: DateFormat('yyyy-MM-dd').format(DateTime.now()));
         var weightController = TextEditingController(text: '60.00');
@@ -89,17 +92,22 @@ weidialog(context, id) {
                 var record = WeightRecord(id, date, weight);
                 final String body = jsonEncode(record);
                 final url = Uri.parse('http://10.0.2.2:5000/rec_wei');
-                final response = await http.post(url, body: body);
-                if (response.statusCode == 201) {
-                  // ignore: use_build_context_synchronously
+                final response = await http.post(url,
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: body);
+                if (!context.mounted) return;
+                if (response.statusCode ~/ 100 == 2) {
                   return showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
-                      content: const Text('UPLOAD SUCCEED'),
+                      content:
+                          const Text('You just have your WEIGHT recorded!'),
                       actions: <TextButton>[
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(dcontext);
                           },
                           child: const Text('Close'),
                         )
@@ -107,11 +115,10 @@ weidialog(context, id) {
                     ),
                   );
                 } else {
-                  // ignore: use_build_context_synchronously
                   return showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
-                      content: Text(response.statusCode.toString() + body),
+                      content: Text(response.statusCode.toString()),
                       actions: <TextButton>[
                         TextButton(
                           onPressed: () {
@@ -186,14 +193,12 @@ mealdialog(context, id, selectedValue, meals) {
 
                       if (pickedTime != null) {
                         DateTime parsedTime = DateFormat.jm()
-                            // ignore: use_build_context_synchronously
                             .parse(pickedTime.format(context).toString());
                         String formattedTime =
                             DateFormat('HH:mm').format(parsedTime);
                         timeController.text = formattedTime;
                       } else {
                         DateTime parsedTime = DateFormat.jm()
-                            // ignore: use_build_context_synchronously
                             .parse(TimeOfDay.now().format(context).toString());
                         String formattedTime =
                             DateFormat('HH:mm').format(parsedTime);
@@ -241,13 +246,17 @@ mealdialog(context, id, selectedValue, meals) {
                 var record = MealRecord(id, date, time, selectedValue);
                 final String body = jsonEncode(record);
                 final url = Uri.parse('http://10.0.2.2:5000/rec_meal');
-                final response = await http.post(url, body: body);
-                if (response.statusCode == 201) {
-                  // ignore: use_build_context_synchronously
+                final response = await http.post(url,
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: body);
+                if (!context.mounted) return;
+                if (response.statusCode ~/ 100 == 2) {
                   return showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
-                      content: const Text('UPLOAD SUCCEED'),
+                      content: const Text('Hope you enjoyed the MEAL!'),
                       actions: <TextButton>[
                         TextButton(
                           onPressed: () {
@@ -259,7 +268,6 @@ mealdialog(context, id, selectedValue, meals) {
                     ),
                   );
                 } else {
-                  // ignore: use_build_context_synchronously
                   return showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
@@ -275,7 +283,6 @@ mealdialog(context, id, selectedValue, meals) {
                     ),
                   );
                 }
-                // ignore: use_build_context_synchronously
               },
               child: const Text('Send'),
             ),
@@ -528,13 +535,17 @@ execontentdia(context, id, dateController, timeController, selectedexe,
                 var record = ExeRecord(id, date, time, type, content);
                 final String body = jsonEncode(record);
                 final url = Uri.parse('http://10.0.2.2:5000/rec_exe');
-                final response = await http.post(url, body: body);
-                if (response.statusCode == 201) {
-                  // ignore: use_build_context_synchronously
+                final response = await http.post(url,
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: body);
+                if (!context.mounted) return;
+                if (response.statusCode ~/ 100 == 2) {
                   return showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
-                      content: const Text('UPLOAD SUCCEED'),
+                      content: const Text('Happy exercising!'),
                       actions: <TextButton>[
                         TextButton(
                           onPressed: () {
@@ -546,7 +557,6 @@ execontentdia(context, id, dateController, timeController, selectedexe,
                     ),
                   );
                 } else {
-                  // ignore: use_build_context_synchronously
                   return showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(

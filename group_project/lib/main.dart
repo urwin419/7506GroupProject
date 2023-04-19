@@ -19,8 +19,14 @@ const List<String> exes = <String>["Jogging", "Crunches", "Push-ups"];
 var id = '1';
 
 Future<List<ExeRecord>> fetchExe() async {
-  var url = Uri.parse('http://10.0.2.2:5000//get_exe');
-  final response = await http.post(url, body: {"id": id});
+  var url = Uri.parse('http://10.0.2.2:5000/get_exe');
+  final response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{'id': id}),
+  );
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => ExeRecord.fromJson(data)).toList();
@@ -30,8 +36,14 @@ Future<List<ExeRecord>> fetchExe() async {
 }
 
 Future<List<MealRecord>> fetchMeal() async {
-  var url = Uri.parse('http://10.0.2.2:5000//get_meal');
-  final response = await http.post(url, body: {"id": id});
+  var url = Uri.parse('http://10.0.2.2:5000/get_meal');
+  final response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{'id': id}),
+  );
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => MealRecord.fromJson(data)).toList();
@@ -41,8 +53,14 @@ Future<List<MealRecord>> fetchMeal() async {
 }
 
 Future<List<WeightRecord>> fetchWeight() async {
-  var url = Uri.parse('http://10.0.2.2:5000//get_wei');
-  final response = await http.post(url, body: {"id": id});
+  var url = Uri.parse('http://10.0.2.2:5000/get_wei');
+  final response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{'id': id}),
+  );
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => WeightRecord.fromJson(data)).toList();
@@ -60,13 +78,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: _title,
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
         '/': (context) => const LoginPage(),
         '/home': (context) => const MyStatefulWidget(),
         '/register': (context) => const RegisterPage(),
       },
-      //home: MyStatefulWidget(),
     );
   }
 }
@@ -134,7 +151,9 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: _isLoading ? const CircularProgressIndicator() : _buildLoginForm(),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : _buildLoginForm(),
         ),
       ),
     );
@@ -334,8 +353,9 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child:
-              _isLoading ? const CircularProgressIndicator() : _buildRegisterForm(),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : _buildRegisterForm(),
         ),
       ),
     );

@@ -156,9 +156,10 @@ class Controller(object):
         return {'status': 1}
 
     def rec_wei_func(self, request):
-        id = request.form['id']
-        date = request.form['date']
-        weight = request.form['weight']
+        json = request.json
+        id = json['id']
+        date = json['date']
+        weight = json['weight']
         if weight == '' or id == '' or date == '':
             return {'status': 2}
         else:
@@ -167,10 +168,11 @@ class Controller(object):
             return {'status': 1}
 
     def rec_meal_func(self, request):
-        id = request.form['id']
-        date = request.form['date']
-        time = request.form['time']
-        meal = request.form['meal']
+        json = request.json
+        id = json['id']
+        date = json['date']
+        time = json['time']
+        meal = json['meal']
         if id == '' or date == '' or time == '' or meal == '':
             return {'status': 2}
         else:
@@ -179,11 +181,12 @@ class Controller(object):
             return {'status': 1}
     
     def rec_exe_func(self, request):
-        id = request.form['id']
-        date = request.form['date']
-        time = request.form['time']
-        type = request.form['type']
-        content = request.form['content']
+        json = request.json
+        id = json['id']
+        date = json['date']
+        time = json['time']
+        type = json['type']
+        content = json['content']
         if id == '' or date == '' or time == '' or type == '':
             return {'status': 2}
         else:
@@ -192,16 +195,19 @@ class Controller(object):
             return {'status': 1}
         
     def get_exe_func(self, request):
-        id = request.form['id']
+        json = request.json
+        id = json['id']
         db = self.conn
         return db.get_exe_rec([id])
     
     def get_wei_func(self, request):
-        id = request.form['id']
+        json = request.json
+        id = json['id']
         db = self.conn
         return db.get_wei_rec([id])
     
     def get_meal_func(self, request):
-        id = request.form['id']
+        json = request.json
+        id = json['id']
         db = self.conn
         return db.get_meal_rec([id])

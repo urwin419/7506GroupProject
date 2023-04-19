@@ -1,4 +1,5 @@
 import os
+from flask import jsonify
 
 import pymysql as mdb
 from dbutils.pooled_db import PooledDB
@@ -128,7 +129,7 @@ class DB:
     def upload_wei_rec(self, data):
         self.create_conn()
         id = int(data[0])
-        date = datetime.strptime(data[1], '%y/%m/%d')
+        date = data[1]
         weight = float(data[2])
         self.execute('INSERT INTO weight(id, date, weight) values(%s, %s, %s)', [id, date, weight])
         self.commit()
@@ -138,7 +139,7 @@ class DB:
     def upload_meal_rec(self, data):
         self.create_conn()
         id = data[0]
-        date = datetime.strptime(data[1], '%y/%m/%d')
+        date = data[1]
         time = data[2]
         meal = data[3]
         self.execute('INSERT INTO meal(id, date, time, meal) values(%s, %s, %s, %s)', [id, date, time, meal])
@@ -148,7 +149,7 @@ class DB:
     def upload_exe_rec(self, data):
         self.create_conn()
         id = data[0]
-        date = datetime.strptime(data[1], '%y/%m/%d')
+        date = data[1]
         time = data[2]
         type = data[3]
         content = data[4]
@@ -158,15 +159,24 @@ class DB:
 
     def get_wei_rec(self, data):
         self.create_conn()
-        id = int(data[0])
-        self.execute('SELECT * FROM weight WHERE id = %s',id)
+        id = data[0]
+        self.execute('SELECT id,date,weight FROM weight WHERE id = %s',id)
+        results = self.result(1)
+        self.close()
+        return results
 
     def get_meal_rec(self, data):
         self.create_conn()
-        id = int(data[0])
-        self.execute('SELECT * FROM meal WHERE id = %s',id)
+        id = data[0]
+        self.execute('SELECT id,date,time,meal FROM meal WHERE id = %s',id)
+        results = self.result(1)
+        self.close()
+        return results
 
     def get_exe_rec(self, data):
         self.create_conn()
-        id = int(data[0])
-        self.execute('SELECT * FROM exe WHERE id = %s',id)
+        id = data[0]
+        d = self.execute('SELECT id,date,time,type,content FROM exe WHERE id = %s',id)
+        results = self.result(1)
+        self.close()
+        return results
