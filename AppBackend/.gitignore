@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Local development files
+.env
+.env.*
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Flask specific
+instance/
+*.pyc

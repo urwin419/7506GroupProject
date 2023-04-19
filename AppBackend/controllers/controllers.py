@@ -5,8 +5,10 @@ import json
 import os
 import random
 import time
+from datetime import timedelta, datetime
+
 import pagan
-from flask import render_template, redirect, session
+import jwt
 
 
 # get the md5 from the string input
@@ -46,18 +48,19 @@ def uploaded_editor_files_con(request):
     return request.form.image.data
 
 
-# get username
-def get_name():
-    user_name = session.get('username')
-    return {'username': user_name}
-
-
 # define the controller layer
 class Controller(object):
-    def __init__(self, app, conn, session_in):
+    def __init__(self, app, conn):
         self.app = app
         self.conn = conn
-        self.session = session_in
+
+    def generate_jwt_token(self, user_id):
+        payload = {
+            'user_id': user_id,
+            'exp': datetime.utcnow() + timedelta(days=1)
+        }
+        jwt_token = jwt.encode(payload, self.app.secret_key, algorithm='HS256')
+        return jwt_token
 
     # get the login form
     def post_login_get_fun(self, request):
@@ -68,8 +71,8 @@ class Controller(object):
         if results is not None:
             pw_processed = get_md5(get_md5(password) + results['saltvalue'])
             if pw_processed == results['pwvalue']:
-                self.session['username'] = username
-                return {'status': 1}
+                token = self.generate_jwt_token(db.get_userid(username))
+                return {'status': 1, 'token': token}
             else:
                 return {'status': 2}
         else:
@@ -93,20 +96,27 @@ class Controller(object):
             db.update_avatar([username, pic_base64])
             db.create_pw_salt(pw_processed_salt)
             # db.create_user_table(username)
-            return {'status': 1}
+            token = self.generate_jwt_token(db.get_userid(username))
+            return {'status': 1, 'token': token}
         else:
             db.close()
             return {'status': 2}
 
-    # get the user's avatar
-    def get_avatar_fun(self):
+    def get_username(self, user_data):
         db = self.conn
-        result = db.get_avatar(db.get_userid(session.get('username'))['userid'])
+        username = db.get_username(user_data['userid'])
+        db.close()
+        return {'status': 1, 'username': username}
+
+    # get the user's avatar
+    def get_avatar_fun(self, user_data):
+        db = self.conn
+        result = db.get_avatar(user_data['userid'])
         db.close()
         return {'url': result['avatar']}
 
     # get the upload of the new username
-    def upload_username_fun(self, request):
+    def upload_username_fun(self, user_data, request):
         username = request.form['username']
         if username == '':
             return {'status': 2}
@@ -114,15 +124,15 @@ class Controller(object):
             db = self.conn
             result = db.get_userid(username)
             if result is None:
-                db.upload_username([username, self.session.get('username')])
-                self.session['username'] = username
-                return {'name': self.session['username'], 'status': 1}
+                db.upload_username([username, user_data['userid']])
+                return {'name': db.get_username(user_data['userid']), 'status': 1}
             else:
                 return {'status': 3}
 
     # get the new password
-    def upload_password_fun(self, request):
-        username = self.session.get('username')
+    def upload_password_fun(self, user_data, request):
+        db = self.conn
+        username = db.get_username(user_data['userid'])
         old_password = request.form['old_password']
         password = request.form['password']
 
@@ -149,10 +159,10 @@ class Controller(object):
             return {'status': 2}
 
     # get the upload avatar
-    def upload_avatar_fun(self, request):
+    def upload_avatar_fun(self, user_data, request):
         avatar = request.form['avatar']
         db = self.conn
-        db.upload_avatar([avatar, db.get_userid(session.get('username'))['userid']])
+        db.upload_avatar([avatar, user_data['userid']])
         return {'status': 1}
 
     def rec_wei_func(self, request):

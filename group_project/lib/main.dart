@@ -51,6 +51,7 @@ Future<List<WeightRecord>> fetchWeight() async {
   }
 }
 
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -77,7 +78,6 @@ class MyStatefulWidget extends StatefulWidget {
   @override
   State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -492,7 +492,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       _selectedIndex = index;
     });
   }
-
   Widget _record() {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
