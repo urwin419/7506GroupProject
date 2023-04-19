@@ -61,13 +61,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: _title,
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
         '/': (context) => const LoginPage(),
         '/home': (context) => const MyStatefulWidget(),
         '/register': (context) => const RegisterPage(),
       },
-      //home: MyStatefulWidget(),
     );
   }
 }
