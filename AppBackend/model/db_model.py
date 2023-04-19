@@ -80,6 +80,16 @@ class DB:
         result = self.result(0)
         return result
 
+    def get_username(self, data):
+        if data is None:
+            return {'username': ''}
+        print(data)
+        self.create_conn()
+        self.execute('SELECT username FROM user WHERE userid = %s', data)
+        self.commit()
+        result = self.result(0)
+        return result
+
     # update the user's avatar
     def update_avatar(self, data):
         self.create_conn()
@@ -106,7 +116,7 @@ class DB:
     # update the user's name
     def upload_username(self, data):
         self.create_conn()
-        self.execute('UPDATE user SET username=%s WHERE username=%s', data)
+        self.execute('UPDATE user SET username=%s WHERE userid=%s', data)
         self.commit()
         self.close()
 

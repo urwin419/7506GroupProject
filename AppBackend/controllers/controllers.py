@@ -5,8 +5,10 @@ import json
 import os
 import random
 import time
+from datetime import timedelta, datetime
+
 import pagan
-from flask import render_template, redirect, session
+import jwt
 
 
 # get the md5 from the string input
@@ -46,18 +48,19 @@ def uploaded_editor_files_con(request):
     return request.form.image.data
 
 
-# get username
-def get_name():
-    user_name = session.get('username')
-    return {'username': user_name}
-
-
 # define the controller layer
 class Controller(object):
-    def __init__(self, app, conn, session_in):
+    def __init__(self, app, conn):
         self.app = app
         self.conn = conn
-        self.session = session_in
+
+    def generate_jwt_token(self, user_id):
+        payload = {
+            'user_id': user_id,
+            'exp': datetime.utcnow() + timedelta(days=1)
+        }
+        jwt_token = jwt.encode(payload, self.app.secret_key, algorithm='HS256')
+        return jwt_token
 
     # get the login form
     def post_login_get_fun(self, request):
@@ -68,8 +71,8 @@ class Controller(object):
         if results is not None:
             pw_processed = get_md5(get_md5(password) + results['saltvalue'])
             if pw_processed == results['pwvalue']:
-                self.session['username'] = username
-                return {'status': 1}
+                token = self.generate_jwt_token(db.get_userid(username))
+                return {'status': 1, 'token': token}
             else:
                 return {'status': 2}
         else:
@@ -93,20 +96,27 @@ class Controller(object):
             db.update_avatar([username, pic_base64])
             db.create_pw_salt(pw_processed_salt)
             # db.create_user_table(username)
-            return {'status': 1}
+            token = self.generate_jwt_token(db.get_userid(username))
+            return {'status': 1, 'token': token}
         else:
             db.close()
             return {'status': 2}
 
-    # get the user's avatar
-    def get_avatar_fun(self):
+    def get_username(self, user_data):
         db = self.conn
-        result = db.get_avatar(db.get_userid(session.get('username'))['userid'])
+        username = db.get_username(user_data['userid'])
+        db.close()
+        return {'status': 1, 'username': username}
+
+    # get the user's avatar
+    def get_avatar_fun(self, user_data):
+        db = self.conn
+        result = db.get_avatar(user_data['userid'])
         db.close()
         return {'url': result['avatar']}
 
     # get the upload of the new username
-    def upload_username_fun(self, request):
+    def upload_username_fun(self, user_data, request):
         username = request.form['username']
         if username == '':
             return {'status': 2}
@@ -114,15 +124,15 @@ class Controller(object):
             db = self.conn
             result = db.get_userid(username)
             if result is None:
-                db.upload_username([username, self.session.get('username')])
-                self.session['username'] = username
-                return {'name': self.session['username'], 'status': 1}
+                db.upload_username([username, user_data['userid']])
+                return {'name': db.get_username(user_data['userid']), 'status': 1}
             else:
                 return {'status': 3}
 
     # get the new password
-    def upload_password_fun(self, request):
-        username = self.session.get('username')
+    def upload_password_fun(self, user_data, request):
+        db = self.conn
+        username = db.get_username(user_data['userid'])
         old_password = request.form['old_password']
         password = request.form['password']
 
@@ -149,65 +159,59 @@ class Controller(object):
             return {'status': 2}
 
     # get the upload avatar
-    def upload_avatar_fun(self, request):
+    def upload_avatar_fun(self, user_data, request):
         avatar = request.form['avatar']
         db = self.conn
-        db.upload_avatar([avatar, db.get_userid(session.get('username'))['userid']])
+        db.upload_avatar([avatar, user_data['userid']])
         return {'status': 1}
 
-    def rec_wei_func(self, request):
-        json = request.json
-        id = json['id']
-        date = json['date']
-        weight = json['weight']
-        if weight == '' or id == '' or date == '':
+    def rec_wei_func(self, user_data, request):
+        uid = user_data['userid']
+        date = request.form['date']
+        weight = request.form['weight']
+        if weight == '' or uid == '' or date == '':
             return {'status': 2}
         else:
             db = self.conn
-            db.upload_wei_rec([id, date, weight])
+            db.upload_wei_rec([uid, date, weight])
             return {'status': 1}
 
-    def rec_meal_func(self, request):
-        json = request.json
-        id = json['id']
-        date = json['date']
-        time = json['time']
-        meal = json['meal']
-        if id == '' or date == '' or time == '' or meal == '':
+    def rec_meal_func(self, user_data, request):
+        uid = user_data['userid']
+        date = request.form['date']
+        time = request.form['time']
+        meal = request.form['meal']
+        if uid == '' or date == '' or time == '' or meal == '':
             return {'status': 2}
         else:
             db = self.conn
-            db.upload_meal_rec([id, date, time, meal])
+            db.upload_meal_rec([uid, date, time, meal])
             return {'status': 1}
     
-    def rec_exe_func(self, request):
-        json = request.json
-        id = json['id']
-        date = json['date']
-        time = json['time']
-        type = json['type']
-        content = json['content']
-        if id == '' or date == '' or time == '' or type == '':
+    def rec_exe_func(self, user_data, request):
+        uid = user_data['userid']
+        date = request.form['date']
+        time = request.form['time']
+        type = request.form['type']
+        content = request.form['content']
+        if uid == '' or date == '' or time == '' or type == '':
             return {'status': 2}
         else:
             db = self.conn
-            db.upload_exe_rec([id, date, time, type, content])
+            db.upload_exe_rec([uid, date, time, type, content])
             return {'status': 1}
         
-    def get_exe_func(self, request):
-        json = request.json
-        id = json['id']
+    def get_exe_func(self, user_data, request):
+        uid = user_data['userid']
         db = self.conn
-        return db.get_exe_rec([id])
+        return db.get_exe_rec([uid])
     
-    def get_wei_func(self, request):
-        json = request.json
-        id = json['id']
+    def get_wei_func(self, user_data, request):
+        uid = user_data['userid']
         db = self.conn
-        return db.get_wei_rec([id])
+        return db.get_wei_rec([uid])
     
-    def get_meal_func(self, request):
-        json = request.json
-        id = json['id']
+    def get_meal_func(self, user_data, request):
+        uid = user_data['userid']
         db = self.conn
-        return db.get_meal_rec([id])
+        return db.get_meal_rec([uid])
