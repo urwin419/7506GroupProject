@@ -53,4 +53,9 @@ __pycache__/
 # Flask specific
 instance/
 
-group_project/windows/flutter/ephemeral/flutter_windows.dll.pdb
+**/android/
+**/ios/
+**/linux/
+**/macos/
+**/web/
+**/windows/
