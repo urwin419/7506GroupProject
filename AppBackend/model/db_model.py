@@ -2,6 +2,7 @@ import os
 
 import pymysql as mdb
 from dbutils.pooled_db import PooledDB
+from datetime import datetime
 
 path = os.getcwd()
 f = open('config', 'r')
@@ -132,3 +133,50 @@ class DB:
         self.execute('UPDATE user SET avatar=%s WHERE userid=%s', data)
         self.commit()
         self.close()
+
+    # upload weight record
+    def upload_wei_rec(self, data):
+        self.create_conn()
+        id = int(data[0])
+        date = datetime.strptime(data[1], '%y/%m/%d')
+        weight = float(data[2])
+        self.execute('INSERT INTO weight(id, date, weight) values(%s, %s, %s)', [id, date, weight])
+        self.commit()
+        self.close()
+
+    # upload weight record
+    def upload_meal_rec(self, data):
+        self.create_conn()
+        id = data[0]
+        date = datetime.strptime(data[1], '%y/%m/%d')
+        time = data[2]
+        meal = data[3]
+        self.execute('INSERT INTO meal(id, date, time, meal) values(%s, %s, %s, %s)', [id, date, time, meal])
+        self.commit()
+        self.close()
+
+    def upload_exe_rec(self, data):
+        self.create_conn()
+        id = data[0]
+        date = datetime.strptime(data[1], '%y/%m/%d')
+        time = data[2]
+        type = data[3]
+        content = data[4]
+        self.execute('INSERT INTO exe(id, date, time, type,content) values(%s, %s, %s, %s, %s)', [id, date, time, type, content])
+        self.commit()
+        self.close()
+
+    def get_wei_rec(self, data):
+        self.create_conn()
+        id = int(data[0])
+        self.execute('SELECT * FROM weight WHERE id = %s',id)
+
+    def get_meal_rec(self, data):
+        self.create_conn()
+        id = int(data[0])
+        self.execute('SELECT * FROM meal WHERE id = %s',id)
+
+    def get_exe_rec(self, data):
+        self.create_conn()
+        id = int(data[0])
+        self.execute('SELECT * FROM exe WHERE id = %s',id)

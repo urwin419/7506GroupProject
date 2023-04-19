@@ -1,8 +1,56 @@
+// ignore_for_file: unused_import, library_private_types_in_public_api, use_build_context_synchronously
+
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:group_project/exerecord.dart';
+import 'package:intl/intl.dart';
+import 'package:number_text_input_formatter/number_text_input_formatter.dart';
+import 'mealrecord.dart';
+import 'weightrecord.dart';
 import 'package:http/http.dart' as http;
+import 'package:group_project/dialogs.dart';
+import 'recview.dart';
 
 void main() => runApp(const MyApp());
+
+const serverUrl = 'localhost:5000';
+const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
+const List<String> exes = <String>["Jogging", "Crunches", "Push-ups"];
+var token = '';
+
+Future<List<ExeRecord>> fetchExe() async {
+  var url = Uri.http(serverUrl, '/get_exe', {'token': token});
+  final response = await http.get(url);
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((data) => ExeRecord.fromJson(data)).toList();
+  } else {
+    throw Exception('Unexpected error occured!');
+  }
+}
+
+Future<List<MealRecord>> fetchMeal() async {
+  var url = Uri.http(serverUrl, '/get_meal', {'token': token});
+  final response = await http.get(url);
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((data) => MealRecord.fromJson(data)).toList();
+  } else {
+    throw Exception('Unexpected error occured!');
+  }
+}
+
+Future<List<WeightRecord>> fetchWeight() async {
+  var url = Uri.http(serverUrl, '/get_wei', {'token': token});
+  final response = await http.get(url);
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((data) => WeightRecord.fromJson(data)).toList();
+  } else {
+    throw Exception('Unexpected error occured!');
+  }
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -15,13 +63,59 @@ class MyApp extends StatelessWidget {
       title: _title,
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginPage(),
-        '/home': (context) => MyStatefulWidget(),
-        '/register': (context) => RegisterPage(),
+        '/': (context) => const LoginPage(),
+        '/home': (context) => const MyStatefulWidget(),
+        '/register': (context) => const RegisterPage(),
       },
       //home: MyStatefulWidget(),
     );
   }
+}
+
+showAutoHideAlertDialog(BuildContext context, List<String> texts) {
+  AlertDialog alert = AlertDialog(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+    content: SizedBox(
+      height: 120,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 60),
+          const SizedBox(height: 10),
+          Text(texts[0],
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 5),
+          Text(texts[1],
+              style: const TextStyle(fontSize: 16, color: Colors.grey)),
+        ],
+      ),
+    ),
+    backgroundColor: Colors.white,
+    elevation: 8,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  );
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.of(context).pop(true);
+      });
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: alert,
+      );
+    },
+  );
+}
+
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({super.key});
+
+  @override
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
 
 class LoginPage extends StatefulWidget {
@@ -44,8 +138,7 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      var response = await http.post(
-          Uri.parse('http://16.162.25.221:8080/post_login'),
+      var response = await http.post(Uri.http(serverUrl, '/post_login'),
           body: {'username': _username, 'password': _password});
 
       setState(() {
@@ -53,12 +146,20 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print(response.body);
+        var data = jsonDecode(response.body.toString());
+        if (data['status'] == 1) {
+          token = data['token'];
+          if (kDebugMode) {
+            print(response.body);
+          }
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          showAutoHideAlertDialog(context,
+              ["Authentication failed", "Incorrect username or password"]);
         }
-        Navigator.pushReplacementNamed(context, '/home');
       } else {
-        // Show error message
+        showAutoHideAlertDialog(
+            context, ["Authentication failed", "Server unavailable now"]);
       }
     }
   }
@@ -78,9 +179,11 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       body: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: _isLoading ? CircularProgressIndicator() : _buildLoginForm(),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : _buildLoginForm(),
         ),
       ),
     );
@@ -138,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
             obscureText: true,
             validator: (value) =>
                 value!.isEmpty ? 'Password is required' : null,
-            onSaved: (value) => _password = value!.trim(),
+            onChanged: (value) => _password = value.trim(),
           ),
           const SizedBox(height: 24.0),
           ElevatedButton(
@@ -231,7 +334,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   'Password is too weak. Passwords must be at least 8 characters long.'),
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -244,7 +347,7 @@ class _RegisterPageState extends State<RegisterPage> {
       }
 
       var response = await http.post(
-        Uri.parse('http://16.162.25.221:8080/post_register'),
+        Uri.http(serverUrl, '/post_register'),
         body: {'username': _username, 'password': _password},
       );
 
@@ -253,12 +356,23 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print(response.body);
+        var data = jsonDecode(response.body.toString());
+        if (data['status'] == 1) {
+          token = data['token'];
+          if (kDebugMode) {
+            print(response.body);
+          }
+          Navigator.pushReplacementNamed(context, '/home');
+        } else if (data['status'] == 2) {
+          showAutoHideAlertDialog(
+              context, ["Registration failed", "Username already used"]);
+        } else {
+          showAutoHideAlertDialog(
+              context, ["Registration failed", "Invalid username or password"]);
         }
-        Navigator.pushReplacementNamed(context, '/home');
       } else {
-        // Show error message
+        showAutoHideAlertDialog(
+            context, ["Authentication failed", "Server unavailable now"]);
       }
     }
   }
@@ -280,8 +394,9 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child:
-              _isLoading ? CircularProgressIndicator() : _buildRegisterForm(),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : _buildRegisterForm(),
         ),
       ),
     );
@@ -385,7 +500,7 @@ class _RegisterPageState extends State<RegisterPage> {
           const SizedBox(height: 32.0),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: Colors.blueAccent,
+              backgroundColor: Colors.blueAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
@@ -409,26 +524,33 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 }
 
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({super.key});
-
-  @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
-}
-
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  String selectedMeal = meals.first;
+  String selectedexe = exes.first;
   int _selectedIndex = 0;
+  String _operation = 'record weight';
+
   final List<String> entries1 = <String>[
     'record weight',
     'record meal',
     'record exercise'
   ];
-  final List<int> colorCodes1 = <int>[600, 500, 100];
-  String _operation = 'record weight';
+  final List<String> entries2 = <String>[
+    'weight records',
+    'meal records',
+    'exercise records'
+  ];
+  final List<String> entries3 = <String>['profile', 'settings'];
 
   void updateText(String text) {
     setState(() {
       _operation = text;
+    });
+  }
+
+  void onTabTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
     });
   }
 
@@ -440,7 +562,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         return GestureDetector(
             child: Container(
               alignment: Alignment.center,
-              color: Colors.blue,
+              color: Colors.red[300],
               width: 200.0,
               height: 100.0,
               child: Text(
@@ -452,118 +574,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               updateText(entries1[index]);
               switch (_operation) {
                 case 'record weight':
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        var dateController = TextEditingController();
-                        var weightController = TextEditingController();
-                        return AlertDialog(
-                          scrollable: true,
-                          title: const Text('Login'),
-                          content: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Form(
-                              child: Column(
-                                children: <Widget>[
-                                  TextFormField(
-                                    controller: dateController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Date',
-                                      icon: Icon(Icons.account_box),
-                                    ),
-                                  ),
-                                  TextFormField(
-                                    controller: weightController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Weight',
-                                      icon: Icon(Icons.email),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Send them to your email maybe?
-                                var date = dateController.text;
-                                var weight = weightController.text;
-                                if (kDebugMode) {
-                                  print(date);
-                                }
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Send'),
-                            ),
-                          ],
-                        );
-                      });
+                  weidialog(context);
                   break;
                 case 'record meal':
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        var dateController = TextEditingController();
-                        var timeController = TextEditingController();
-                        var mealController = TextEditingController();
-                        return AlertDialog(
-                          scrollable: true,
-                          title: const Text('Login'),
-                          content: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Form(
-                              child: Column(
-                                children: <Widget>[
-                                  TextFormField(
-                                    controller: dateController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Date',
-                                      icon: Icon(Icons.account_box),
-                                    ),
-                                  ),
-                                  TextFormField(
-                                    controller: timeController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Time',
-                                      icon: Icon(Icons.email),
-                                    ),
-                                  ),
-                                  TextFormField(
-                                    controller: mealController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Meal',
-                                      icon: Icon(Icons.email),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Send them to your email maybe?
-                                var date = dateController.text;
-                                var time = timeController.text;
-                                var meal = mealController.text;
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Send'),
-                            ),
-                          ],
-                        );
-                      });
+                  mealdialog(context, selectedMeal, meals);
                   break;
                 case 'record exercise':
+                  exedialog(context, selectedexe, exes);
                   break;
               }
             });
@@ -572,36 +589,46 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     );
   }
 
-  final List<String> entries2 = <String>[
-    'weight records',
-    'meal records',
-    'exercise records'
-  ];
-  final List<int> colorCodes2 = <int>[600, 500, 100];
-
   Widget _past() {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemCount: entries2.length,
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-          height: 50,
-          color: Colors.amber[colorCodes2[index]],
-          child: Center(child: Text(' ${entries2[index]}')),
-        );
+        return GestureDetector(
+            child: Container(
+              alignment: Alignment.center,
+              width: 200.0,
+              height: 100.0,
+              color: Colors.amber[300],
+              child: Center(child: Text(' ${entries2[index]}')),
+            ),
+            onTap: () {
+              updateText(entries2[index]);
+              switch (_operation) {
+                case 'weight records':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const WeiRec()),
+                  );
+                  break;
+                case 'meal records':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MealRec()),
+                  );
+                  break;
+                case 'exercise records':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ExeRec()),
+                  );
+                  break;
+              }
+            });
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
     );
   }
-
-  void onTabTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  final List<String> entries3 = <String>['profile', 'settings'];
-  final List<int> colorCodes3 = <int>[600, 500];
 
   Widget _profile() {
     return ListView.separated(
@@ -609,8 +636,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       itemCount: entries3.length,
       itemBuilder: (BuildContext context, int index) {
         return Container(
-          height: 50,
-          color: Colors.amber[colorCodes3[index]],
+          alignment: Alignment.center,
+          width: 200.0,
+          height: 100.0,
+          color: Colors.blue[300],
           child: Center(child: Text(' ${entries3[index]}')),
         );
       },
@@ -628,6 +657,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('RecFit System'),
+        backgroundColor: Colors.black,
       ),
       body: children[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
