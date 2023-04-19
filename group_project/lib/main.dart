@@ -14,13 +14,14 @@ import 'recview.dart';
 
 void main() => runApp(const MyApp());
 
+const serverUrl = 'localhost:5000';
 const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
 const List<String> exes = <String>["Jogging", "Crunches", "Push-ups"];
-var id = '1';
+var token = '';
 
 Future<List<ExeRecord>> fetchExe() async {
-  var url = Uri.parse('http://10.0.2.2:5000//get_exe');
-  final response = await http.post(url, body: {"id": id});
+  var url = Uri.http(serverUrl, '/get_exe', {'token': token});
+  final response = await http.get(url);
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => ExeRecord.fromJson(data)).toList();
@@ -30,8 +31,8 @@ Future<List<ExeRecord>> fetchExe() async {
 }
 
 Future<List<MealRecord>> fetchMeal() async {
-  var url = Uri.parse('http://10.0.2.2:5000//get_meal');
-  final response = await http.post(url, body: {"id": id});
+  var url = Uri.http(serverUrl, '/get_meal', {'token': token});
+  final response = await http.get(url);
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => MealRecord.fromJson(data)).toList();
@@ -41,8 +42,8 @@ Future<List<MealRecord>> fetchMeal() async {
 }
 
 Future<List<WeightRecord>> fetchWeight() async {
-  var url = Uri.parse('http://10.0.2.2:5000//get_wei');
-  final response = await http.post(url, body: {"id": id});
+  var url = Uri.http(serverUrl, '/get_wei', {'token': token});
+  final response = await http.get(url);
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => WeightRecord.fromJson(data)).toList();
@@ -50,7 +51,6 @@ Future<List<WeightRecord>> fetchWeight() async {
     throw Exception('Unexpected error occured!');
   }
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -72,12 +72,52 @@ class MyApp extends StatelessWidget {
   }
 }
 
+showAutoHideAlertDialog(BuildContext context, List<String> texts) {
+  AlertDialog alert = AlertDialog(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+    content: SizedBox(
+      height: 120,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 60),
+          const SizedBox(height: 10),
+          Text(texts[0],
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 5),
+          Text(texts[1],
+              style: const TextStyle(fontSize: 16, color: Colors.grey)),
+        ],
+      ),
+    ),
+    backgroundColor: Colors.white,
+    elevation: 8,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  );
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.of(context).pop(true);
+      });
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: alert,
+      );
+    },
+  );
+}
+
 class MyStatefulWidget extends StatefulWidget {
   const MyStatefulWidget({super.key});
 
   @override
   State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -98,8 +138,7 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      var response = await http.post(
-          Uri.parse('http://16.162.25.221:8080/post_login'),
+      var response = await http.post(Uri.http(serverUrl, '/post_login'),
           body: {'username': _username, 'password': _password});
 
       setState(() {
@@ -107,12 +146,20 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print(response.body);
+        var data = jsonDecode(response.body.toString());
+        if (data['status'] == 1) {
+          token = data['token'];
+          if (kDebugMode) {
+            print(response.body);
+          }
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          showAutoHideAlertDialog(context,
+              ["Authentication failed", "Incorrect username or password"]);
         }
-        Navigator.pushReplacementNamed(context, '/home');
       } else {
-        // Show error message
+        showAutoHideAlertDialog(
+            context, ["Authentication failed", "Server unavailable now"]);
       }
     }
   }
@@ -134,7 +181,9 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: _isLoading ? const CircularProgressIndicator() : _buildLoginForm(),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : _buildLoginForm(),
         ),
       ),
     );
@@ -192,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
             obscureText: true,
             validator: (value) =>
                 value!.isEmpty ? 'Password is required' : null,
-            onSaved: (value) => _password = value!.trim(),
+            onChanged: (value) => _password = value.trim(),
           ),
           const SizedBox(height: 24.0),
           ElevatedButton(
@@ -298,7 +347,7 @@ class _RegisterPageState extends State<RegisterPage> {
       }
 
       var response = await http.post(
-        Uri.parse('http://16.162.25.221:8080/post_register'),
+        Uri.http(serverUrl, '/post_register'),
         body: {'username': _username, 'password': _password},
       );
 
@@ -307,12 +356,23 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print(response.body);
+        var data = jsonDecode(response.body.toString());
+        if (data['status'] == 1) {
+          token = data['token'];
+          if (kDebugMode) {
+            print(response.body);
+          }
+          Navigator.pushReplacementNamed(context, '/home');
+        } else if (data['status'] == 2) {
+          showAutoHideAlertDialog(
+              context, ["Registration failed", "Username already used"]);
+        } else {
+          showAutoHideAlertDialog(
+              context, ["Registration failed", "Invalid username or password"]);
         }
-        Navigator.pushReplacementNamed(context, '/home');
       } else {
-        // Show error message
+        showAutoHideAlertDialog(
+            context, ["Authentication failed", "Server unavailable now"]);
       }
     }
   }
@@ -334,8 +394,9 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child:
-              _isLoading ? const CircularProgressIndicator() : _buildRegisterForm(),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : _buildRegisterForm(),
         ),
       ),
     );
@@ -492,6 +553,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       _selectedIndex = index;
     });
   }
+
   Widget _record() {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
@@ -512,13 +574,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               updateText(entries1[index]);
               switch (_operation) {
                 case 'record weight':
-                  weidialog(context, id);
+                  weidialog(context);
                   break;
                 case 'record meal':
-                  mealdialog(context, id, selectedMeal, meals);
+                  mealdialog(context, selectedMeal, meals);
                   break;
                 case 'record exercise':
-                  exedialog(context, id, selectedexe, exes);
+                  exedialog(context, selectedexe, exes);
                   break;
               }
             });

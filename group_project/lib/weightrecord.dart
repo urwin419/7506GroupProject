@@ -9,10 +9,10 @@ part 'weightrecord.g.dart';
 /// JSON serialization logic to be generated.
 @JsonSerializable()
 class WeightRecord {
-  WeightRecord(this.id, this.date, this.weight);
+  WeightRecord(this.token, this.date, this.weight);
 
   @JsonKey(required: true)
-  String id;
+  String token;
   @JsonKey(required: true)
   String date;
   @JsonKey(required: true)

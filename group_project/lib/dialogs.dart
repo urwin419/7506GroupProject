@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:number_text_input_formatter/number_text_input_formatter.dart';
+import 'main.dart';
 import 'mealrecord.dart';
 import 'weightrecord.dart';
 import 'package:http/http.dart' as http;
 import 'exerecord.dart';
 
-weidialog(context, id) {
+weidialog(context) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -86,9 +87,9 @@ weidialog(context, id) {
               onPressed: () async {
                 var date = dateController.text;
                 var weight = weightController.text;
-                var record = WeightRecord(id, date, weight);
+                var record = WeightRecord(token, date, weight);
                 final String body = jsonEncode(record);
-                final url = Uri.parse('http://10.0.2.2:5000/rec_wei');
+                var url = Uri.http(serverUrl, '/rec_wei', {'token': token});
                 final response = await http.post(url, body: body);
                 if (response.statusCode == 201) {
                   // ignore: use_build_context_synchronously
@@ -131,7 +132,7 @@ weidialog(context, id) {
       });
 }
 
-mealdialog(context, id, selectedValue, meals) {
+mealdialog(context, selectedValue, meals) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -238,9 +239,9 @@ mealdialog(context, id, selectedValue, meals) {
               onPressed: () async {
                 var date = dateController.text;
                 var time = timeController.text;
-                var record = MealRecord(id, date, time, selectedValue);
+                var record = MealRecord(token, date, time, selectedValue);
                 final String body = jsonEncode(record);
-                final url = Uri.parse('http://10.0.2.2:5000/rec_meal');
+                var url = Uri.http(serverUrl, '/rec_meal', {'token': token});
                 final response = await http.post(url, body: body);
                 if (response.statusCode == 201) {
                   // ignore: use_build_context_synchronously
@@ -284,7 +285,7 @@ mealdialog(context, id, selectedValue, meals) {
       });
 }
 
-exedialog(context, id, selectedexe, exes) {
+exedialog(context, selectedexe, exes) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -453,7 +454,7 @@ exedialog(context, id, selectedexe, exes) {
                                           onPressed: () {
                                             execontentdia(
                                                 context,
-                                                id,
+                                                token,
                                                 dateController,
                                                 timeController,
                                                 selectedexe,
@@ -478,7 +479,7 @@ exedialog(context, id, selectedexe, exes) {
       });
 }
 
-execontentdia(context, id, dateController, timeController, selectedexe,
+execontentdia(context, token, dateController, timeController, selectedexe,
     contentController) {
   showDialog(
       context: context,
@@ -525,9 +526,9 @@ execontentdia(context, id, dateController, timeController, selectedexe,
                 var time = timeController.text;
                 var type = selectedexe;
                 var content = contentController.text;
-                var record = ExeRecord(id, date, time, type, content);
+                var record = ExeRecord(token, date, time, type, content);
                 final String body = jsonEncode(record);
-                final url = Uri.parse('http://10.0.2.2:5000/rec_exe');
+                var url = Uri.http(serverUrl, '/rec_exe', {'token': token});
                 final response = await http.post(url, body: body);
                 if (response.statusCode == 201) {
                   // ignore: use_build_context_synchronously
