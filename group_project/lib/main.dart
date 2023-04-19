@@ -1,7 +1,7 @@
-// ignore_for_file: unused_import
+// ignore_for_file: unused_import, library_private_types_in_public_api, use_build_context_synchronously
 
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:group_project/exerecord.dart';
 import 'package:intl/intl.dart';
@@ -58,9 +58,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: _title,
-      home: MyStatefulWidget(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/home': (context) => const MyStatefulWidget(),
+        '/register': (context) => const RegisterPage(),
+      },
+      //home: MyStatefulWidget(),
     );
   }
 }
@@ -70,6 +76,391 @@ class MyStatefulWidget extends StatefulWidget {
 
   @override
   State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+}
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  late String _username, _password;
+  bool _isLoading = false;
+
+  void _submit() async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      form.save();
+      setState(() {
+        _isLoading = true;
+      });
+
+      var response = await http.post(
+          Uri.parse('http://16.162.25.221:8080/post_login'),
+          body: {'username': _username, 'password': _password});
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print(response.body);
+        }
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // Show error message
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blueAccent,
+        title: const Text(
+          'Login',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: _isLoading ? const CircularProgressIndicator() : _buildLoginForm(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Username',
+              labelStyle: const TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            validator: (value) =>
+                value!.isEmpty ? 'Username is required' : null,
+            onSaved: (value) => _username = value!.trim(),
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Password',
+              labelStyle: const TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            obscureText: true,
+            validator: (value) =>
+                value!.isEmpty ? 'Password is required' : null,
+            onSaved: (value) => _password = value!.trim(),
+          ),
+          const SizedBox(height: 24.0),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+              shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+            onPressed: _submit,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+              child: Text(
+                'Login',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/register');
+            },
+            child: const Text('Register'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
+  late String _username, _password, _confirmPassword;
+  bool _isLoading = false;
+
+  void _submit() async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      form.save();
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Password validation
+      if (_password != _confirmPassword) {
+        setState(() {
+          _isLoading = false;
+        });
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Passwords do not match.'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      } else if (_password.length < 8) {
+        setState(() {
+          _isLoading = false;
+        });
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text(
+                  'Password is too weak. Passwords must be at least 8 characters long.'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      var response = await http.post(
+        Uri.parse('http://16.162.25.221:8080/post_register'),
+        body: {'username': _username, 'password': _password},
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print(response.body);
+        }
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // Show error message
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blueAccent,
+        title: const Text(
+          'Register',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child:
+              _isLoading ? const CircularProgressIndicator() : _buildRegisterForm(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegisterForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Username',
+              labelStyle: const TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            validator: (value) =>
+                value!.isEmpty ? 'Username is required' : null,
+            onChanged: (value) => _username = value.trim(),
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Password',
+              labelStyle: const TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            obscureText: true,
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Please enter a password.';
+              } else if (value.length < 8) {
+                return 'Password is too weak. Passwords must be at least 8 characters long.';
+              } else if (value == _username) {
+                return 'Password cannot be the same as username.';
+              } else if (value != _confirmPassword) {
+                return 'Passwords do not match.';
+              }
+              return null;
+            },
+            onChanged: (value) => _password = value.trim(),
+          ),
+          const SizedBox(height: 16.0),
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Confirm Password',
+              labelStyle: const TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            obscureText: true,
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Please confirm your password.';
+              } else if (value != _password) {
+                return 'Passwords do not match.';
+              }
+              return null;
+            },
+            onChanged: (value) => _confirmPassword = value.trim(),
+          ),
+          const SizedBox(height: 32.0),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: Colors.blueAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            onPressed: _submit,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Text(
+                'REGISTER',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
