@@ -439,7 +439,7 @@ class _RegisterPageState extends State<RegisterPage> {
           const SizedBox(height: 32.0),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: Colors.blueAccent,
+              backgroundColor: Colors.blueAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
