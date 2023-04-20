@@ -1,9 +1,0 @@
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/icudtl.dat
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/flutter_windows.dll
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/flutter_assets/AssetManifest.bin
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/flutter_assets/AssetManifest.json
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/flutter_assets/FontManifest.json
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/flutter_assets/fonts/MaterialIcons-Regular.otf
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/flutter_assets/kernel_blob.bin
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/flutter_assets/NOTICES.Z
-D:/learning/postgraduate/7506/7506GroupProject/group_project/build/windows/runner/Debug/data/flutter_assets/shaders/ink_sparkle.frag
