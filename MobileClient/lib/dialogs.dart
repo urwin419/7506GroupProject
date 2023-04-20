@@ -369,7 +369,6 @@ exedialog(context, selectedexe, exes) {
                                     );
                                     if (pickedTime != null) {
                                       DateTime parsedTime = DateFormat.jm()
-                                          // ignore: use_build_context_synchronously
                                           .parse(pickedTime
                                               .format(context)
                                               .toString());
@@ -378,7 +377,6 @@ exedialog(context, selectedexe, exes) {
                                       timeController.text = formattedTime;
                                     } else {
                                       DateTime parsedTime = DateFormat.jm()
-                                          // ignore: use_build_context_synchronously
                                           .parse(TimeOfDay.now()
                                               .format(context)
                                               .toString());
