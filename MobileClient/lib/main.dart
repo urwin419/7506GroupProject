@@ -14,7 +14,7 @@ import 'recview.dart';
 
 void main() => runApp(const MyApp());
 
-const serverUrl = 'localhost:5000';
+const serverUrl = '10.0.2.2:5000';
 const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
 const List<String> exes = <String>["Jogging", "Crunches", "Push-ups"];
 var token = '';

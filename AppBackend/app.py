@@ -109,7 +109,7 @@ def rec_wei(user_data):
 
 
 # get the weight records
-@app.route('/get_wei', methods=['POST'])
+@app.route('/get_wei', methods=['GET'])
 @validate_jwt_token
 def get_wei(user_data):
     controller = Controller(app, DB())
@@ -125,7 +125,7 @@ def rec_meal(user_data):
 
 
 # get the meal records
-@app.route('/get_meal', methods=['POST'])
+@app.route('/get_meal', methods=['GET'])
 @validate_jwt_token
 def get_meal(user_data):
     controller = Controller(app, DB())
@@ -141,7 +141,7 @@ def rec_exe(user_data):
 
 
 # get the weight records
-@app.route('/get_exe', methods=['POST'])
+@app.route('/get_exe', methods=['GET'])
 @validate_jwt_token
 def get_exe(user_data):
     controller = Controller(app, DB())
