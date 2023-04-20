@@ -9,10 +9,10 @@ part of 'weightrecord.dart';
 WeightRecord _$WeightRecordFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['token', 'date', 'weight'],
+    requiredKeys: const ['id', 'date', 'weight'],
   );
   return WeightRecord(
-    json['token'] as String,
+    json['id'] as String,
     json['date'] as String,
     json['weight'] as String,
   );
@@ -20,7 +20,7 @@ WeightRecord _$WeightRecordFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$WeightRecordToJson(WeightRecord instance) =>
     <String, dynamic>{
-      'token': instance.token,
+      'id': instance.id,
       'date': instance.date,
       'weight': instance.weight,
     };

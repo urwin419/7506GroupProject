@@ -167,8 +167,9 @@ class Controller(object):
 
     def rec_wei_func(self, user_data, request):
         uid = user_data['userid']
-        date = request.form['date']
-        weight = request.form['weight']
+        json = request.json
+        date = json['date']
+        weight = json['weight']
         if weight == '' or uid == '' or date == '':
             return {'status': 2}
         else:
@@ -178,9 +179,10 @@ class Controller(object):
 
     def rec_meal_func(self, user_data, request):
         uid = user_data['userid']
-        date = request.form['date']
-        time = request.form['time']
-        meal = request.form['meal']
+        json = request.json
+        date = json['date']
+        time = json['time']
+        meal = json['meal']
         if uid == '' or date == '' or time == '' or meal == '':
             return {'status': 2}
         else:
@@ -190,10 +192,11 @@ class Controller(object):
     
     def rec_exe_func(self, user_data, request):
         uid = user_data['userid']
-        date = request.form['date']
-        time = request.form['time']
-        type = request.form['type']
-        content = request.form['content']
+        json = request.json
+        date = json['date']
+        time = json['time']
+        type = json['type']
+        content = json['content']
         if uid == '' or date == '' or time == '' or type == '':
             return {'status': 2}
         else:
