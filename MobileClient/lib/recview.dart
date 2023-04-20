@@ -17,6 +17,7 @@ class ExeRec extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String a = 'KM';
     return Scaffold(
       appBar: AppBar(
         title: const Text('Here is all your exercise records'),
@@ -29,11 +30,54 @@ class ExeRec extends StatelessWidget {
             return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (BuildContext context, int index) {
+                  if (snapshot.data![index].type != 'Jogging') {
+                    a = ' ';
+                  }
                   return Container(
                     height: 75,
                     color: Colors.white,
-                    child: Center(
-                      child: Text(snapshot.data![index].type),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  snapshot.data![index].date,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  snapshot.data![index].time,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ]),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  snapshot.data![index].content,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  a,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  snapshot.data![index].type,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ])
+                      ],
                     ),
                   );
                 });
@@ -43,11 +87,6 @@ class ExeRec extends StatelessWidget {
           return const CircularProgressIndicator();
         },
       )),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Go back!')),
     );
   }
 }
@@ -70,12 +109,30 @@ class MealRec extends StatelessWidget {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
-                    height: 75,
-                    color: Colors.white,
-                    child: Center(
-                      child: Text(snapshot.data![index].meal),
-                    ),
-                  );
+                      height: 75,
+                      color: Colors.white,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                snapshot.data![index].date,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                snapshot.data![index].time,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                snapshot.data![index].meal,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ]));
                 });
           } else if (snapshot.hasError) {
             return Text(snapshot.error.toString());
@@ -83,11 +140,6 @@ class MealRec extends StatelessWidget {
           return const CircularProgressIndicator();
         },
       )),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Go back!')),
     );
   }
 }
@@ -110,12 +162,30 @@ class WeiRec extends StatelessWidget {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
-                    height: 75,
-                    color: Colors.white,
-                    child: Center(
-                      child: Text(snapshot.data![index].weight),
-                    ),
-                  );
+                      height: 75,
+                      color: Colors.white,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                snapshot.data![index].date,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                snapshot.data![index].weight,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const Expanded(
+                              child: Text(
+                                "kg",
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ]));
                 });
           } else if (snapshot.hasError) {
             return Text(snapshot.error.toString());
@@ -123,11 +193,6 @@ class WeiRec extends StatelessWidget {
           return const CircularProgressIndicator();
         },
       )),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Go back!')),
     );
   }
 }

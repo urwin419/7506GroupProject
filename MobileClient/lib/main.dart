@@ -23,7 +23,7 @@ Future<List<ExeRecord>> fetchExe() async {
   var url = Uri.http(serverUrl, '/get_exe', {'token': token});
   final response = await http.get(url);
   if (response.statusCode == 200) {
-    List jsonResponse = json.decode(response.body);
+    List jsonResponse = json.decode(response.body)["data"];
     return jsonResponse.map((data) => ExeRecord.fromJson(data)).toList();
   } else {
     throw Exception('Unexpected error occured!');
@@ -34,7 +34,7 @@ Future<List<MealRecord>> fetchMeal() async {
   var url = Uri.http(serverUrl, '/get_meal', {'token': token});
   final response = await http.get(url);
   if (response.statusCode == 200) {
-    List jsonResponse = json.decode(response.body);
+    List jsonResponse = json.decode(response.body)["data"];
     return jsonResponse.map((data) => MealRecord.fromJson(data)).toList();
   } else {
     throw Exception('Unexpected error occured!');
@@ -45,7 +45,7 @@ Future<List<WeightRecord>> fetchWeight() async {
   var url = Uri.http(serverUrl, '/get_wei', {'token': token});
   final response = await http.get(url);
   if (response.statusCode == 200) {
-    List jsonResponse = json.decode(response.body);
+    List jsonResponse = json.decode(response.body)["data"];
     return jsonResponse.map((data) => WeightRecord.fromJson(data)).toList();
   } else {
     throw Exception('Unexpected error occured!');
@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: _title,
-      initialRoute: '/home',
+      initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
         '/home': (context) => const MyStatefulWidget(),
@@ -213,6 +213,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
+            initialValue: "lyzood",
             validator: (value) =>
                 value!.isEmpty ? 'Username is required' : null,
             onSaved: (value) => _username = value!.trim(),
@@ -561,12 +562,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         return GestureDetector(
             child: Container(
               alignment: Alignment.center,
-              color: Colors.red[300],
+              color: Colors.blue[300],
               width: 200.0,
               height: 100.0,
               child: Text(
                 ' ${entries1[index]}',
-                style: const TextStyle(color: Colors.white),
+                textScaleFactor: 2,
+                style: const TextStyle(color: Colors.black),
               ),
             ),
             onTap: () {
@@ -598,8 +600,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               alignment: Alignment.center,
               width: 200.0,
               height: 100.0,
-              color: Colors.amber[300],
-              child: Center(child: Text(' ${entries2[index]}')),
+              color: Colors.blue[300],
+              child: Center(
+                  child: Text(
+                ' ${entries2[index]}',
+                textScaleFactor: 2,
+              )),
             ),
             onTap: () {
               updateText(entries2[index]);
@@ -639,7 +645,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           width: 200.0,
           height: 100.0,
           color: Colors.blue[300],
-          child: Center(child: Text(' ${entries3[index]}')),
+          child: Center(
+              child: Text(
+            ' ${entries3[index]}',
+            textScaleFactor: 2,
+          )),
         );
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),

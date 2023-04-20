@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, prefer_interpolation_to_compose_strings
 
 import 'dart:convert';
 
@@ -486,6 +486,23 @@ exedialog(context, selectedexe, exes) {
 
 execontentdia(context, token, dateController, timeController, selectedexe,
     contentController) {
+  var suffix = 'KM';
+  var ico = const Icon(Icons.directions_run);
+  switch (selectedexe) {
+    case 'Jogging':
+      suffix = 'KM';
+      ico = const Icon(Icons.directions_run);
+      break;
+    case 'Crunches':
+      suffix = 'Crunches';
+      ico = const Icon(Icons.sports_martial_arts);
+      break;
+    case 'Push-ups':
+      suffix = 'Push-ups';
+      ico = const Icon(Icons.sports_gymnastics);
+      break;
+  }
+
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -514,6 +531,8 @@ execontentdia(context, token, dateController, timeController, selectedexe,
                     decoration: InputDecoration(
                       labelText: selectedexe,
                       hintText: '10',
+                      icon: const Icon(Icons.monitor_weight),
+                      suffixText: suffix,
                     ),
                   ),
                 ],
@@ -540,11 +559,13 @@ execontentdia(context, token, dateController, timeController, selectedexe,
                     },
                     body: body);
                 if (!context.mounted) return;
+                var a = (10 * int.parse(content)).toString();
                 if (response.statusCode ~/ 100 == 2) {
                   return showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
-                      content: const Text('Happy exercising!'),
+                      content: Text(
+                          'Happy exercising! You have consumed $a calories'),
                       actions: <TextButton>[
                         TextButton(
                           onPressed: () {
