@@ -11,10 +11,11 @@ import 'weightrecord.dart';
 import 'package:http/http.dart' as http;
 import 'package:group_project/dialogs.dart';
 import 'recview.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 void main() => runApp(const MyApp());
 
-const serverUrl = '10.0.2.2:5000';
+const serverUrl = 'localhost:5000';
 const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
 const List<String> exes = <String>["Jogging", "Crunches", "Push-ups"];
 var token = '';
@@ -556,100 +557,192 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   Widget _record() {
     return ListView.separated(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       itemCount: entries1.length,
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
+          child: Container(
+            decoration: BoxDecoration(
               color: Colors.blue[300],
-              width: 200.0,
-              height: 100.0,
-              child: Text(
-                ' ${entries1[index]}',
-                textScaleFactor: 2,
-                style: const TextStyle(color: Colors.black),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                )
+              ],
+            ),
+            width: double.infinity,
+            height: 120.0,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Feather.plus_circle,
+                    color: Colors.white,
+                    size: 40.0,
+                  ),
+                  const SizedBox(
+                    height: 8.0,
+                  ),
+                  Text(
+                    ' ${entries1[index]}',
+                    textScaleFactor: 2,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
-            onTap: () {
-              updateText(entries1[index]);
-              switch (_operation) {
-                case 'record weight':
-                  weidialog(context);
-                  break;
-                case 'record meal':
-                  mealdialog(context, selectedMeal, meals);
-                  break;
-                case 'record exercise':
-                  exedialog(context, selectedexe, exes);
-                  break;
-              }
-            });
+          ),
+          onTap: () {
+            updateText(entries1[index]);
+            switch (_operation) {
+              case 'record weight':
+                weidialog(context);
+                break;
+              case 'record meal':
+                mealdialog(context, selectedMeal, meals);
+                break;
+              case 'record exercise':
+                exedialog(context, selectedexe, exes);
+                break;
+            }
+          },
+        );
       },
-      separatorBuilder: (BuildContext context, int index) => const Divider(),
+      separatorBuilder: (BuildContext context, int index) => const SizedBox(
+        height: 16,
+      ),
     );
   }
+
 
   Widget _past() {
     return ListView.separated(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       itemCount: entries2.length,
       itemBuilder: (BuildContext context, int index) {
+        IconData icon;
+        switch(entries2[index]) {
+          case 'weight records':
+            icon = Icons.scale;
+            break;
+          case 'meal records':
+            icon = Icons.fastfood;
+            break;
+          case 'exercise records':
+            icon = Icons.fitness_center;
+            break;
+          default:
+            icon = Icons.category;
+            break;
+        }
         return GestureDetector(
-            child: Container(
-              alignment: Alignment.center,
-              width: 200.0,
-              height: 100.0,
+          onTap: () {
+            updateText(entries2[index]);
+            switch (_operation) {
+              case 'weight records':
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WeiRec()),
+                );
+                break;
+              case 'meal records':
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MealRec()),
+                );
+                break;
+              case 'exercise records':
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ExeRec()),
+                );
+                break;
+            }
+          },
+          child: Container(
+            width: 200.0,
+            height: 120.0,
+            decoration: BoxDecoration(
               color: Colors.blue[300],
-              child: Center(
-                  child: Text(
-                ' ${entries2[index]}',
-                textScaleFactor: 2,
-              )),
+              borderRadius: BorderRadius.circular(12.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            onTap: () {
-              updateText(entries2[index]);
-              switch (_operation) {
-                case 'weight records':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const WeiRec()),
-                  );
-                  break;
-                case 'meal records':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MealRec()),
-                  );
-                  break;
-                case 'exercise records':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ExeRec()),
-                  );
-                  break;
-              }
-            });
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 40.0,
+                ),
+                const SizedBox(
+                  height: 8.0,
+                ),
+                Text(
+                  ' ${entries2[index]}',
+                  textScaleFactor: 2,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
     );
   }
 
+
+
+
   Widget _profile() {
     return ListView.separated(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       itemCount: entries3.length,
       itemBuilder: (BuildContext context, int index) {
         return Container(
-          alignment: Alignment.center,
           width: 200.0,
-          height: 100.0,
-          color: Colors.blue[300],
+          height: 120.0,
+          decoration: BoxDecoration(
+            color: Colors.blue[300],
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
           child: Center(
-              child: Text(
-            ' ${entries3[index]}',
-            textScaleFactor: 2,
-          )),
+            child: Text(
+              ' ${entries3[index]}',
+              textScaleFactor: 2,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         );
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
