@@ -11,6 +11,7 @@ dependencies:
   simple_animations: ^5.0.0+3
   flutter:
     sdk: flutter
+  flutter_vector_icons: ^1.0.0
   flutter_easyloading: ^3.0.5
   http: ^0.13.5
   intl: ^0.18.0
