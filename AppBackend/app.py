@@ -31,7 +31,7 @@ def validate_jwt_token(f):
         except Exception as e:
             print(e)
             # 处理错误情况
-            return {'status': 1}
+            return {'status': 3}
 
     return decorated_function
 
