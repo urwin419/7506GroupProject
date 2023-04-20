@@ -207,14 +207,17 @@ class Controller(object):
     def get_exe_func(self, user_data, request):
         uid = user_data['userid']
         db = self.conn
-        return db.get_exe_rec([uid])
+        data = db.get_exe_rec([uid])
+        return {'status': 1, 'data': data}
     
     def get_wei_func(self, user_data, request):
         uid = user_data['userid']
         db = self.conn
-        return db.get_wei_rec([uid])
+        data = db.get_wei_rec([uid])
+        return {'status': 1, 'data': data}
     
     def get_meal_func(self, user_data, request):
         uid = user_data['userid']
         db = self.conn
-        return db.get_meal_rec([uid])
+        data = db.get_meal_rec([uid])
+        return {'status': 1, 'data': data}
