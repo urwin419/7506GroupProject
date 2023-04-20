@@ -57,47 +57,95 @@ def post_register():
 
 @app.route('/get_avatar', methods=['GET'])
 @validate_jwt_token
-def get_avatar(user_id):
+def get_avatar(user_data):
     controller = Controller(app, DB())
-    return controller.get_avatar_fun(user_id)
+    return controller.get_avatar_fun(user_data)
 
 
 # get the username
 @app.route('/get_username', methods=['GET'])
 @validate_jwt_token
-def get_username(user_id):
+def get_username(user_data):
     controller = Controller(app, DB())
-    return controller.get_username(user_id)
+    return controller.get_username(user_data)
 
 
 # get the upload of the username
 @app.route('/upload_username', methods=['POST'])
 @validate_jwt_token
-def upload_username(user_id):
+def upload_username(user_data):
     controller = Controller(app, DB())
-    return controller.upload_username_fun(user_id, request)
+    return controller.upload_username_fun(user_data, request)
 
 
 # get the upload form of the password update
 @app.route('/upload_password', methods=['POST'])
 @validate_jwt_token
-def upload_password(user_id):
+def upload_password(user_data):
     controller = Controller(app, DB())
-    return controller.upload_password_fun(user_id, request)
+    return controller.upload_password_fun(user_data, request)
 
 
 # get the upload avatar form
 @app.route('/upload_avatar', methods=['POST'])
 @validate_jwt_token
-def upload_avatar(user_id):
+def upload_avatar(user_data):
     controller = Controller(app, DB())
-    return controller.upload_avatar_fun(user_id, request)
+    return controller.upload_avatar_fun(user_data, request)
 
 
 # get the logout action
 @app.route('/log_out', methods=['GET'])
 def log_out():
     return {'status': 1}
+
+
+# upload weight record
+@app.route('/rec_wei', methods=['POST'])
+@validate_jwt_token
+def rec_wei(user_data):
+    controller = Controller(app, DB())
+    return controller.rec_wei_func(user_data, request)
+
+
+# get the weight records
+@app.route('/get_wei', methods=['POST'])
+@validate_jwt_token
+def get_wei(user_data):
+    controller = Controller(app, DB())
+    return controller.get_wei_func(user_data, request)
+
+
+# upload meal record
+@app.route('/rec_meal', methods=['POST'])
+@validate_jwt_token
+def rec_meal(user_data):
+    controller = Controller(app, DB())
+    return controller.rec_meal_func(user_data, request)
+
+
+# get the meal records
+@app.route('/get_meal', methods=['POST'])
+@validate_jwt_token
+def get_meal(user_data):
+    controller = Controller(app, DB())
+    return controller.get_meal_func(user_data, request)
+
+
+# upload exercise record
+@app.route('/rec_exe', methods=['POST'])
+@validate_jwt_token
+def rec_exe(user_data):
+    controller = Controller(app, DB())
+    return controller.rec_exe_func(user_data, request)
+
+
+# get the weight records
+@app.route('/get_exe', methods=['POST'])
+@validate_jwt_token
+def get_exe(user_data):
+    controller = Controller(app, DB())
+    return controller.get_exe_func(user_data, request)
 
 
 if __name__ == '__main__':

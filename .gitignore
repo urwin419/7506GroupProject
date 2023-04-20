@@ -53,3 +53,9 @@ __pycache__/
 # Flask specific
 instance/
 
+**/android/
+**/ios/
+**/linux/
+**/macos/
+**/web/
+**/windows/
