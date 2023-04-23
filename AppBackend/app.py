@@ -14,6 +14,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 
+
 def validate_jwt_token(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -30,7 +31,6 @@ def validate_jwt_token(f):
 
         except Exception as e:
             print(e)
-            # 处理错误情况
             return {'status': 3}
 
     return decorated_function
@@ -146,6 +146,13 @@ def rec_exe(user_data):
 def get_exe(user_data):
     controller = Controller(app, DB())
     return controller.get_exe_func(user_data, request)
+
+
+@app.route('/get_chat', methods=['GET'])
+@validate_jwt_token
+def get_chat(user_data):
+    controller = Controller(app, DB())
+    return controller.get_chat_func(user_data, request)
 
 
 if __name__ == '__main__':

@@ -9,6 +9,10 @@ from datetime import timedelta, datetime
 
 import pagan
 import jwt
+import os
+import openai
+
+openai.api_key = "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"
 
 
 # get the md5 from the string input
@@ -189,7 +193,7 @@ class Controller(object):
             db = self.conn
             db.upload_meal_rec([uid, date, time, meal])
             return {'status': 1}
-    
+
     def rec_exe_func(self, user_data, request):
         uid = user_data['userid']
         json = request.json
@@ -203,21 +207,45 @@ class Controller(object):
             db = self.conn
             db.upload_exe_rec([uid, date, time, type, content])
             return {'status': 1}
-        
+
     def get_exe_func(self, user_data, request):
         uid = user_data['userid']
         db = self.conn
         data = db.get_exe_rec([uid])
         return {'status': 1, 'data': data}
-    
+
     def get_wei_func(self, user_data, request):
         uid = user_data['userid']
         db = self.conn
         data = db.get_wei_rec([uid])
         return {'status': 1, 'data': data}
-    
+
     def get_meal_func(self, user_data, request):
         uid = user_data['userid']
         db = self.conn
         data = db.get_meal_rec([uid])
         return {'status': 1, 'data': data}
+
+    def get_chat_func(self, user_data, request):
+        uid = user_data['userid']
+        db = self.conn
+        data_exe = db.get_exe_rec([uid])
+        data_wei = db.get_wei_rec([uid])
+        data_meal = db.get_meal_rec([uid])
+        prompt = "Now suppose you are the health assistant of a person whose current weight record is: {wei}, " \
+                 "diet record is: {meal} and exercise record is: {exe}, give an analysis and advice report directly " \
+                 "to the " \
+                 "person:".format(
+            exe=str(data_exe), meal=str(data_meal), wei=str(data_wei))
+
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt=prompt,
+            temperature=0.9,
+            max_tokens=250,
+            top_p=1,
+            frequency_penalty=0.0,
+            presence_penalty=0.6,
+        )
+
+        return {'status': 1, 'data': response}
