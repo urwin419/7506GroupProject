@@ -20,6 +20,7 @@ class ExeRec extends StatelessWidget {
     String a = 'KM';
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: const Text('Here is all your exercise records'),
       ),
       body: Center(
@@ -98,6 +99,7 @@ class MealRec extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: const Text('Here is all your meal records'),
       ),
       body: Center(
@@ -151,6 +153,7 @@ class WeiRec extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: const Text('Here is all your Weight records'),
       ),
       body: Center(

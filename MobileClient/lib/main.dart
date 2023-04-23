@@ -15,7 +15,7 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 void main() => runApp(const MyApp());
 
-const serverUrl = 'localhost:5000';
+const serverUrl = '20.163.246.224:8080';
 const List<String> meals = <String>["Breakfast", "Lunch", "Dinner"];
 const List<String> exes = <String>["Jogging", "Crunches", "Push-ups"];
 var token = '';
@@ -48,6 +48,18 @@ Future<List<WeightRecord>> fetchWeight() async {
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body)["data"];
     return jsonResponse.map((data) => WeightRecord.fromJson(data)).toList();
+  } else {
+    throw Exception('Unexpected error occured!');
+  }
+}
+
+Future<String> fetchAnalysis() async {
+  var url = Uri.http(serverUrl, '/get_chat', {'token': token});
+  final response = await http.get(url);
+  if (response.statusCode == 200) {
+    String report =
+        json.decode(response.body)["data"]["choices"][0]["text"].substring(1);
+    return report;
   } else {
     throw Exception('Unexpected error occured!');
   }
@@ -168,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.black,
         title: const Text(
           'Login',
           style: TextStyle(
@@ -179,7 +191,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       body: Container(
-        padding: const EdgeInsets.all(16.0),
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/login.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        padding: const EdgeInsets.all(64.0),
         child: Center(
           child: _isLoading
               ? const CircularProgressIndicator()
@@ -199,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
             decoration: InputDecoration(
               labelText: 'Username',
               labelStyle: const TextStyle(
-                color: Colors.blueAccent,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -224,7 +242,7 @@ class _LoginPageState extends State<LoginPage> {
             decoration: InputDecoration(
               labelText: 'Password',
               labelStyle: const TextStyle(
-                color: Colors.blueAccent,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -247,7 +265,7 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(height: 24.0),
           ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+              backgroundColor: MaterialStateProperty.all(Colors.black),
               shape: MaterialStateProperty.all(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
@@ -382,7 +400,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.black,
         title: const Text(
           'Register',
           style: TextStyle(
@@ -393,7 +411,13 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
       body: Container(
-        padding: const EdgeInsets.all(16.0),
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/login.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        padding: const EdgeInsets.all(64.0),
         child: Center(
           child: _isLoading
               ? const CircularProgressIndicator()
@@ -413,7 +437,7 @@ class _RegisterPageState extends State<RegisterPage> {
             decoration: InputDecoration(
               labelText: 'Username',
               labelStyle: const TextStyle(
-                color: Colors.blueAccent,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -437,7 +461,7 @@ class _RegisterPageState extends State<RegisterPage> {
             decoration: InputDecoration(
               labelText: 'Password',
               labelStyle: const TextStyle(
-                color: Colors.blueAccent,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -472,7 +496,7 @@ class _RegisterPageState extends State<RegisterPage> {
             decoration: InputDecoration(
               labelText: 'Confirm Password',
               labelStyle: const TextStyle(
-                color: Colors.blueAccent,
+                color: Colors.black,
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -501,7 +525,7 @@ class _RegisterPageState extends State<RegisterPage> {
           const SizedBox(height: 32.0),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
@@ -530,6 +554,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String selectedexe = exes.first;
   int _selectedIndex = 0;
   String _operation = 'record weight';
+  bool _isLoading = false;
 
   final List<String> entries1 = <String>[
     'record weight',
@@ -563,6 +588,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         return GestureDetector(
           child: Container(
             decoration: BoxDecoration(
+              image: const DecorationImage(
+                image: AssetImage("assets/images/login.png"),
+                fit: BoxFit.cover,
+              ),
               color: Colors.blue[300],
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
@@ -582,7 +611,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 children: [
                   const Icon(
                     Feather.plus_circle,
-                    color: Colors.white,
+                    color: Colors.black,
                     size: 40.0,
                   ),
                   const SizedBox(
@@ -592,7 +621,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     ' ${entries1[index]}',
                     textScaleFactor: 2,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -622,96 +651,149 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     );
   }
 
-
   Widget _past() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: entries2.length,
-      itemBuilder: (BuildContext context, int index) {
-        IconData icon;
-        switch(entries2[index]) {
-          case 'weight records':
-            icon = Icons.scale;
-            break;
-          case 'meal records':
-            icon = Icons.fastfood;
-            break;
-          case 'exercise records':
-            icon = Icons.fitness_center;
-            break;
-          default:
-            icon = Icons.category;
-            break;
-        }
-        return GestureDetector(
-          onTap: () {
-            updateText(entries2[index]);
-            switch (_operation) {
-              case 'weight records':
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const WeiRec()),
-                );
-                break;
-              case 'meal records':
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MealRec()),
-                );
-                break;
-              case 'exercise records':
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ExeRec()),
-                );
-                break;
-            }
-          },
-          child: Container(
-            width: 200.0,
-            height: 120.0,
-            decoration: BoxDecoration(
-              color: Colors.blue[300],
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 40.0,
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Text(
-                  ' ${entries2[index]}',
-                  textScaleFactor: 2,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: entries2.length,
+            itemBuilder: (BuildContext context, int index) {
+              IconData icon;
+              switch (entries2[index]) {
+                case 'weight records':
+                  icon = Icons.scale;
+                  break;
+                case 'meal records':
+                  icon = Icons.fastfood;
+                  break;
+                case 'exercise records':
+                  icon = Icons.fitness_center;
+                  break;
+                default:
+                  icon = Icons.category;
+                  break;
+              }
+              return GestureDetector(
+                onTap: () {
+                  updateText(entries2[index]);
+                  switch (_operation) {
+                    case 'weight records':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const WeiRec()),
+                      );
+                      break;
+                    case 'meal records':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MealRec()),
+                      );
+                      break;
+                    case 'exercise records':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ExeRec()),
+                      );
+                      break;
+                  }
+                },
+                child: Container(
+                  width: 200.0,
+                  height: 120.0,
+                  decoration: BoxDecoration(
+                    image: const DecorationImage(
+                      image: AssetImage("assets/images/login.png"),
+                      fit: BoxFit.cover,
+                    ),
+                    color: Colors.blue[300],
+                    borderRadius: BorderRadius.circular(12.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        icon,
+                        color: Colors.black,
+                        size: 40.0,
+                      ),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      Text(
+                        ' ${entries2[index]}',
+                        textScaleFactor: 2,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) =>
+                const Divider(),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(48.0),
+          child: SizedBox(
+            width: 76.0,
+            height: 76.0,
+            child: ClipOval(
+              child: Material(
+                color: Colors.black,
+                child: InkWell(
+                  splashColor: Colors.white,
+                  onTap: () {},
+                  child: _aiAnalysis(),
+                ),
+              ),
             ),
           ),
-        );
-      },
-      separatorBuilder: (BuildContext context, int index) => const Divider(),
+        ),
+      ],
     );
   }
 
-
-
+  Widget _aiAnalysis() {
+    return IconButton(
+      icon: const Icon(Icons.analytics, color: Colors.white, size: 48.0),
+      onPressed: () async {
+        setState(() {
+          _isLoading = true;
+        });
+        final result = await fetchAnalysis();
+        setState(() {
+          _isLoading = false;
+        });
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('AI Report'),
+            content: Text(result),
+            actions: [
+              TextButton(
+                child: const Text('Close'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Widget _profile() {
     return ListView.separated(
@@ -722,6 +804,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           width: 200.0,
           height: 120.0,
           decoration: BoxDecoration(
+            image: const DecorationImage(
+              image: AssetImage("assets/images/login.png"),
+              fit: BoxFit.cover,
+            ),
             color: Colors.blue[300],
             borderRadius: BorderRadius.circular(12.0),
             boxShadow: [
@@ -738,7 +824,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ' ${entries3[index]}',
               textScaleFactor: 2,
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -761,7 +847,26 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         title: const Text('RecFit System'),
         backgroundColor: Colors.black,
       ),
-      body: children[_selectedIndex],
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/login.png"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: children[_selectedIndex],
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
