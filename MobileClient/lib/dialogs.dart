@@ -195,9 +195,11 @@ mealdialog(context, selectedValue, meals) {
                       if (pickedTime != null) {
                         DateTime parsedTime;
                         try {
-                          parsedTime = DateFormat('h:mm a').parse(pickedTime.format(context).toString());
+                          parsedTime = DateFormat('h:mm a')
+                              .parse(pickedTime.format(context).toString());
                         } catch (e) {
-                          parsedTime = DateFormat('h:mm').parse(pickedTime.format(context).toString());
+                          parsedTime = DateFormat('h:mm')
+                              .parse(pickedTime.format(context).toString());
                         }
                         String formattedTime =
                             DateFormat('HH:mm').format(parsedTime);
@@ -205,9 +207,11 @@ mealdialog(context, selectedValue, meals) {
                       } else {
                         DateTime parsedTime;
                         try {
-                          parsedTime = DateFormat('h:mm a').parse(TimeOfDay.now().format(context).toString());
+                          parsedTime = DateFormat('h:mm a').parse(
+                              TimeOfDay.now().format(context).toString());
                         } catch (e) {
-                          parsedTime = DateFormat('h:mm').parse(TimeOfDay.now().format(context).toString());
+                          parsedTime = DateFormat('h:mm').parse(
+                              TimeOfDay.now().format(context).toString());
                         }
                         String formattedTime =
                             DateFormat('HH:mm').format(parsedTime);
@@ -378,9 +382,15 @@ exedialog(context, selectedexe, exes) {
                                     if (pickedTime != null) {
                                       DateTime parsedTime;
                                       try {
-                                        parsedTime = DateFormat('h:mm a').parse(pickedTime.format(context).toString());
+                                        parsedTime = DateFormat('h:mm a').parse(
+                                            pickedTime
+                                                .format(context)
+                                                .toString());
                                       } catch (e) {
-                                        parsedTime = DateFormat('h:mm').parse(pickedTime.format(context).toString());
+                                        parsedTime = DateFormat('h:mm').parse(
+                                            pickedTime
+                                                .format(context)
+                                                .toString());
                                       }
                                       String formattedTime = DateFormat('HH:mm')
                                           .format(parsedTime);
@@ -388,9 +398,15 @@ exedialog(context, selectedexe, exes) {
                                     } else {
                                       DateTime parsedTime;
                                       try {
-                                        parsedTime = DateFormat('h:mm a').parse(TimeOfDay.now().format(context).toString());
+                                        parsedTime = DateFormat('h:mm a').parse(
+                                            TimeOfDay.now()
+                                                .format(context)
+                                                .toString());
                                       } catch (e) {
-                                        parsedTime = DateFormat('h:mm').parse(TimeOfDay.now().format(context).toString());
+                                        parsedTime = DateFormat('h:mm').parse(
+                                            TimeOfDay.now()
+                                                .format(context)
+                                                .toString());
                                       }
                                       String formattedTime = DateFormat('HH:mm')
                                           .format(parsedTime);
@@ -543,7 +559,7 @@ execontentdia(context, token, dateController, timeController, selectedexe,
                     decoration: InputDecoration(
                       labelText: selectedexe,
                       hintText: '10',
-                      icon: const Icon(Icons.monitor_weight),
+                      icon: ico,
                       suffixText: suffix,
                     ),
                   ),
