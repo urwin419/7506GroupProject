@@ -12,7 +12,7 @@ import jwt
 import os
 import openai
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 
 # get the md5 from the string input

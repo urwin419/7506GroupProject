@@ -780,15 +780,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         });
         showDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('AI Report'),
-            content: Text(result),
-            actions: [
-              TextButton(
-                child: const Text('Close'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+          builder: (_) => SingleChildScrollView(
+            child: AlertDialog(
+              title: const Text('AI Report'),
+              content: Text(result),
+              actions: [
+                TextButton(
+                  child: const Text('Close'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -193,12 +193,22 @@ mealdialog(context, selectedValue, meals) {
                       );
 
                       if (pickedTime != null) {
-                        DateTime parsedTime = DateFormat('h:mm a').parse(pickedTime.format(context).toString());
+                        DateTime parsedTime;
+                        try {
+                          parsedTime = DateFormat('h:mm a').parse(pickedTime.format(context).toString());
+                        } catch (e) {
+                          parsedTime = DateFormat('h:mm').parse(pickedTime.format(context).toString());
+                        }
                         String formattedTime =
                             DateFormat('HH:mm').format(parsedTime);
                         timeController.text = formattedTime;
                       } else {
-                        DateTime parsedTime = DateFormat('h:mm a').parse(TimeOfDay.now().format(context).toString());
+                        DateTime parsedTime;
+                        try {
+                          parsedTime = DateFormat('h:mm a').parse(TimeOfDay.now().format(context).toString());
+                        } catch (e) {
+                          parsedTime = DateFormat('h:mm').parse(TimeOfDay.now().format(context).toString());
+                        }
                         String formattedTime =
                             DateFormat('HH:mm').format(parsedTime);
                         timeController.text = formattedTime;
@@ -366,12 +376,22 @@ exedialog(context, selectedexe, exes) {
                                       context: context,
                                     );
                                     if (pickedTime != null) {
-                                      DateTime parsedTime = DateFormat('h:mm a').parse(pickedTime.format(context).toString());
+                                      DateTime parsedTime;
+                                      try {
+                                        parsedTime = DateFormat('h:mm a').parse(pickedTime.format(context).toString());
+                                      } catch (e) {
+                                        parsedTime = DateFormat('h:mm').parse(pickedTime.format(context).toString());
+                                      }
                                       String formattedTime = DateFormat('HH:mm')
                                           .format(parsedTime);
                                       timeController.text = formattedTime;
                                     } else {
-                                      DateTime parsedTime = DateFormat('h:mm a').parse(TimeOfDay.now().format(context).toString());
+                                      DateTime parsedTime;
+                                      try {
+                                        parsedTime = DateFormat('h:mm a').parse(TimeOfDay.now().format(context).toString());
+                                      } catch (e) {
+                                        parsedTime = DateFormat('h:mm').parse(TimeOfDay.now().format(context).toString());
+                                      }
                                       String formattedTime = DateFormat('HH:mm')
                                           .format(parsedTime);
                                       timeController.text = formattedTime;
