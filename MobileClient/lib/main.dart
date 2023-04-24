@@ -566,7 +566,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     'meal records',
     'exercise records'
   ];
-  final List<String> entries3 = <String>['profile', 'settings'];
+  final List<String> entries3 = <String>['profile', 'logout'];
 
   void updateText(String text) {
     setState(() {
@@ -821,13 +821,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ),
             ],
           ),
-          child: Center(
-            child: Text(
-              ' ${entries3[index]}',
-              textScaleFactor: 2,
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+          child: GestureDetector(
+            onTap: () {
+              if(index == 1){
+                Navigator.pushReplacementNamed(context, '/');
+                token = "";
+              }
+            },
+            child: Center(
+              child: Text(
+                ' ${entries3[index]}',
+                textScaleFactor: 2,
+                style: TextStyle(
+                  color: index == 1 ? Colors.red : Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
