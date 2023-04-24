@@ -55,7 +55,8 @@ Future<List<WeightRecord>> fetchWeight() async {
 
 Future<String> fetchAnalysis() async {
   var url = Uri.http(serverUrl, '/get_chat', {'token': token});
-  final response = await http.get(url);
+  Map<String, String>? userHeader = {'Connection': 'Keep-Alive'};
+  final response = await http.get(url, headers: userHeader);
   if (response.statusCode == 200) {
     String report =
         json.decode(response.body)["data"]["choices"][0]["text"].substring(1);
@@ -232,7 +233,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            initialValue: "lyzood",
             validator: (value) =>
                 value!.isEmpty ? 'Username is required' : null,
             onSaved: (value) => _username = value!.trim(),
@@ -823,7 +823,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           ),
           child: GestureDetector(
             onTap: () {
-              if(index == 1){
+              if (index == 1) {
                 Navigator.pushReplacementNamed(context, '/');
                 token = "";
               }
