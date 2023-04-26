@@ -433,123 +433,127 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _buildRegisterForm() {
     return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: 'Username',
-              labelStyle: const TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.0,
+        key: _formKey,
+        child: Stack(children: [
+          SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Username is required' : null,
+                  onChanged: (value) => _username = value.trim(),
                 ),
-              ),
-            ),
-            validator: (value) =>
-                value!.isEmpty ? 'Username is required' : null,
-            onChanged: (value) => _username = value.trim(),
-          ),
-          const SizedBox(height: 16.0),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: 'Password',
-              labelStyle: const TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.0,
+                const SizedBox(height: 16.0),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter a password.';
+                    } else if (value.length < 8) {
+                      return 'Password is too weak. Passwords must be at least 8 characters long.';
+                    } else if (value == _username) {
+                      return 'Password cannot be the same as username.';
+                    } else if (value != _confirmPassword) {
+                      return 'Passwords do not match.';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) => _password = value.trim(),
                 ),
-              ),
-            ),
-            obscureText: true,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Please enter a password.';
-              } else if (value.length < 8) {
-                return 'Password is too weak. Passwords must be at least 8 characters long.';
-              } else if (value == _username) {
-                return 'Password cannot be the same as username.';
-              } else if (value != _confirmPassword) {
-                return 'Passwords do not match.';
-              }
-              return null;
-            },
-            onChanged: (value) => _password = value.trim(),
-          ),
-          const SizedBox(height: 16.0),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: 'Confirm Password',
-              labelStyle: const TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.0,
+                const SizedBox(height: 16.0),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please confirm your password.';
+                    } else if (value != _password) {
+                      return 'Passwords do not match.';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) => _confirmPassword = value.trim(),
                 ),
-              ),
-            ),
-            obscureText: true,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Please confirm your password.';
-              } else if (value != _password) {
-                return 'Passwords do not match.';
-              }
-              return null;
-            },
-            onChanged: (value) => _confirmPassword = value.trim(),
-          ),
-          const SizedBox(height: 32.0),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-            onPressed: _submit,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: Text(
-                'REGISTER',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.0,
-                  color: Colors.white,
+                const SizedBox(height: 32.0),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  onPressed: _submit,
+                  child: const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                    child: Text(
+                      'REGISTER',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
+          )
+        ]));
   }
 }
 
